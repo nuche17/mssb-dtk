@@ -13,8 +13,8 @@ void fn_3_113EC0(void);
 void wallBallSomething2(void);
 void wallBallDropInNewWalls(void);
 void wallBallCalculateNewWalls(void);
-void fn_3_1149B8(void);
+int fn_3_1149B8(u8* a, u8* b);
 void fn_3_114A2C(void);
-void wallBallRotatePitchers(void);
+void wallBallRotatePitchers(int rotateAll);
 
 #endif // !__GAME_MINIGAME_WALL_BALL_H_

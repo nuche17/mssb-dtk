@@ -16192,9 +16192,9 @@ void updateFielderPositionBasedOnBallState(int fielderIndex) {
         bestIdx = -1;
         best = 999.9f;
         for (i = 0; i < 100; i++) {
-            if (g_Minigame.wallBall_coinsVisibleInd) {
-                dx = fielder->pos.x - (&g_Minigame.wallBall_coinCoordinates)[i].x;
-                dz = fielder->pos.z - (&g_Minigame.wallBall_coinCoordinates)[i].z;
+            if (g_Minigame.wallBall_coinsVisibleInd[i]) {
+                dx = fielder->pos.x - g_Minigame.wallBall_coinCoordinates[i].x;
+                dz = fielder->pos.z - g_Minigame.wallBall_coinCoordinates[i].z;
                 sqx = dx * dx;
                 sqz = dz * dz;
                 dist = fielderSqrt(sqx + sqz);
@@ -16205,8 +16205,8 @@ void updateFielderPositionBasedOnBallState(int fielderIndex) {
             }
         }
         if (bestIdx >= 0) {
-            fielder->IntendedLocation.x = (&g_Minigame.wallBall_coinCoordinates)[bestIdx].x;
-            fielder->IntendedLocation.z = (&g_Minigame.wallBall_coinCoordinates)[bestIdx].z;
+            fielder->IntendedLocation.x = g_Minigame.wallBall_coinCoordinates[bestIdx].x;
+            fielder->IntendedLocation.z = g_Minigame.wallBall_coinCoordinates[bestIdx].z;
         }
     }
 }
