@@ -762,77 +762,74 @@ void fn_2_52198(void) {
 void fn_2_52260(void) {
     u16 buf[3];
     s32 idx = *(s32 *)(menuCursors + 0x50);
-    u8 *bss = lbl_2_bss_33FBCC;
 
     memset(buf, 0, 6);
     buf[0] = *(u16 *)(Static_Stats_Tables + 0x472C);
     buf[1] = *(u16 *)(Static_Stats_Tables + 0x472E);
     buf[2] = *(u16 *)(Static_Stats_Tables + 0x4730);
 
-    if (buf[1] & 0x8) {
-        idx--;
-        if (idx < 0) {
+    if (buf[1] & PAD_BUTTON_UP) {
+        if (--idx < 0) {
             idx = 2;
         }
-        if ((s8)bss[0xF] != -1 && idx == Static_Stats_Tables[0x4754]) {
-            idx--;
-            if (idx < 0) {
+        if (B33_S8(0xF) != -1 && idx == Static_Stats_Tables[0x4754]) {
+            if (--idx < 0) {
                 idx = 2;
             }
         }
-        bss[0x17] = 0x4C;
+        B33(0x17) = 0x4C;
         sndFXStartEx(0x1B7, lbl_800EFBA4[0], 0x3F, 0);
-    } else if (buf[1] & 0x4) {
-        idx++;
-        if (idx == 3) {
+    } else if (buf[1] & PAD_BUTTON_DOWN) {
+        if (++idx == 3) {
             idx = 0;
         }
-        if ((s8)bss[0xF] != -1 && idx == Static_Stats_Tables[0x4754]) {
-            idx++;
-            if (idx == 3) {
+        if (B33_S8(0xF) != -1 && idx == Static_Stats_Tables[0x4754]) {
+            if (++idx == 3) {
                 idx = 0;
             }
         }
-        bss[0x17] = 0x4C;
+        B33(0x17) = 0x4C;
         sndFXStartEx(0x1B7, lbl_800EFBA4[0], 0x3F, 0);
-    } else if (buf[1] & 0x100) {
-        s32 st = Static_Stats_Tables[0x4756];
+    } else if (buf[1] & PAD_BUTTON_A) {
+        u8 mode = Static_Stats_Tables[0x4756];
 
-        Static_Stats_Tables[0x4754] = (u8)idx;
-        superstarUnlocked[0xF6] = (u8)idx;
-        if (st == 0 && (s8)bss[0xF] == -1) {
-            *(s16 *)(bss + 2) = 0;
+        Static_Stats_Tables[0x4754] = idx;
+        superstarUnlocked[0xF6] = idx;
+        if (mode == 0 && B33_S8(0xF) == -1) {
+            B33_U16(2) = 0;
             *(s32 *)(menuCursors + 0x54) = 0;
             lbl_2_bss_9E08 = 6;
             sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
-        } else if (st == 1 || (s8)bss[0xF] != -1) {
-            if ((s8)bss[0xF] == -1) {
-                fn_8004A34C(lbl_2_bss_33FB4C, 0, 0x1B, 0, 0);
-                sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
-                lbl_2_bss_9E08 = 7;
-            } else if (lbl_80354768[idx + 0xCF5E] == 0) {
-                fn_8003BF54(0, 0, 0, 0, 1, 1, 2, (u8)idx, 2);
-                sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
-                currentDrawingItem->state = 0;
-                lbl_2_bss_9E08 = 9;
+        } else if (mode == 1 || B33_S8(0xF) != -1) {
+            if (B33_S8(0xF) != -1) {
+                if (lbl_80354768[idx + 0xCF5E] != 0) {
+                    fn_8004A34C(lbl_2_bss_33FB4C, 0, 0x29, 0, 0);
+                    sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
+                    lbl_2_bss_9E08 = 7;
+                } else {
+                    fn_8003BF54(0, 0, 0, 0, 1, 1, 2, (u8)idx, 2);
+                    sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
+                    currentDrawingItem->state = 0;
+                    lbl_2_bss_9E08 = 9;
+                }
             } else {
-                fn_8004A34C(lbl_2_bss_33FB4C, 0, 0x29, 0, 0);
+                fn_8004A34C(lbl_2_bss_33FB4C, 0, 0x1B, 0, 0);
                 sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
                 lbl_2_bss_9E08 = 7;
             }
         }
-    } else if (buf[1] & 0x200) {
-        if ((s8)bss[0xF] != -1) {
-            bss[0x10] = bss[0xF];
-            bss[0xF] = 0xFF;
+    } else if (buf[1] & PAD_BUTTON_B) {
+        if (B33_S8(0xF) != -1) {
+            B33(0x10) = B33(0xF);
+            B33_S8(0xF) = -1;
             lbl_2_bss_9E08 = 6;
-            bss[0x17] = 0x4E;
+            B33(0x17) = 0x4E;
             cardCheck[0x52] = 0;
             sndFXStartEx(0x1B9, lbl_800EFBA4[2], 0x3F, 0);
         } else {
-            bss[0x17] = 0x4A;
+            B33(0x17) = 0x4A;
             sndFXStartEx(0x1B9, lbl_800EFBA4[2], 0x3F, 0);
-            bss[0xF] = 0xFF;
+            B33_S8(0xF) = -1;
             lbl_2_bss_9E08 = 0xE;
         }
     }
