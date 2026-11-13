@@ -15,6 +15,10 @@
 #define SCENE_RECORD(scene, rec) \
     (graphicsRelatedArray[*(u16 *)((u8 *)(scene) + 0x14) + *(s16 *)((u8 *)(rec) + 0xE)].object)
 
+/* characters[idx].inGameMissionTracker, reached by byte offset (+0x9). */
+#define MISSION_TRACKER(idx) \
+    ((starMissionTrackingPair *)((u8 *)&lbl_2_bss_1A8248->characters[idx] + 9))
+
 #define SET_DIGIT(digit, value, place)   \
     switch (place) {                     \
     case 0:                              \
@@ -202,6 +206,7 @@ void fn_2_1C860(void);
 #define PAD_PTR() ((u8 *)&AtBat_ButtonInput1 + PAD_PORT * 32)
 #define PAD_RAW() (*(u16 *)PAD_PTR())
 #define PAD_NEW() (*(u16 *)(PAD_PTR() + 2))
+#define PAD_NEW2() (*(u16 *)((u8 *)&AtBat_ButtonInput1._02 + PAD_PORT * 32))
 #define PAD_HELD() (*(u16 *)(PAD_PTR() + 4))
 #define PAD_STICK_Y() (*(s8 *)(PAD_PTR() + 0x13))
 #define ITEM_STATE (*(s8 *)((u8 *)item + 0x28))
@@ -1702,7 +1707,7 @@ void fn_2_30894(void *arg0, void *arg1) {
         TextGraphicsObject *obj;
         s16 idx = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x772A];
         s16 row = *(s16 *)((u8 *)arg1 + 0xA);
-        if ((lbl_2_bss_1A8248->_43C2 + row)[idx] == 1) {
+        if (lbl_2_bss_1A8248->_43C2[row + idx] == 1) {
             if (lbl_2_data_373C[row + idx] == 0) {
                 obj = SCENE_RECORD(arg0, arg1);
                 obj->flags |= UI_FLAG_VISIBLE;
@@ -1729,7 +1734,7 @@ void fn_2_30894(void *arg0, void *arg1) {
         TextGraphicsObject *obj;
         s16 idx = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x772A];
         s16 row = *(s16 *)((u8 *)arg1 + 0xA);
-        if ((lbl_2_bss_1A8248->_43C2 + row)[idx] == 1) {
+        if (lbl_2_bss_1A8248->_43C2[row + idx] == 1) {
             if (lbl_2_data_373C[row + idx] == 0) {
                 obj = SCENE_RECORD(arg0, arg1);
                 obj->flags |= UI_FLAG_VISIBLE;
@@ -2347,8 +2352,7 @@ void fn_2_2EFCC(void *arg0, void *arg1) {
         break;
     case 2: {
         TextGraphicsObject *obj;
-        obj = SCENE_RECORD(arg0, arg1);
-        obj->flags |= UI_FLAG_VISIBLE;
+        SCENE_RECORD(arg0, arg1)->flags |= UI_FLAG_VISIBLE;
         obj = SCENE_RECORD(arg0, arg1);
         ((UIRecord *)obj)->frame = 0;
         obj = SCENE_RECORD(arg0, arg1);
@@ -2474,7 +2478,7 @@ void fn_2_2EBE4(void *arg0, void *arg1) {
     }
     case 8: {
         TextGraphicsObject *obj;
-        load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 4, 0x64, (s8)lbl_2_bss_1A8248->_4446[5]);
+        load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 4, 0x64, ((s8 *)lbl_2_bss_1A8248->_4446)[5]);
         obj = SCENE_RECORD(arg0, arg1);
         obj->flags |= UI_FLAG_VISIBLE;
         obj = SCENE_RECORD(arg0, arg1);
@@ -3770,10 +3774,13 @@ void fn_2_2BF20(void *arg0, void *arg1) {
         s16 row = *(s16 *)((u8 *)arg1 + 0xA);
         s16 charRow = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706];
         if (starMissionRequirementsTable[charRow][row].type != STAR_MISSION_TYPE_NONE) {
-            ChallengeTrackingStruct *tracker = &lbl_2_bss_1A8248->characters[lbl_800E869C[charRow]];
-            s16 a = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7710];
             s16 b;
-            s8 statusA = tracker->inGameMissionTracker[a].starMissionStatus;
+            s8 statusA;
+            s16 a;
+            ChallengeTrackingStruct *tracker;
+            tracker = &lbl_2_bss_1A8248->characters[lbl_800E869C[charRow]];
+            a = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7710];
+            statusA = tracker->inGameMissionTracker[a].starMissionStatus;
             if (!(statusA < 0 && tracker->inGameMissionTracker[b = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7712]].starMissionStatus < 0 && a != b)) {
                 if (statusA < 0) {
                     setRecordFrame(arg0, arg1, 0);
@@ -3879,7 +3886,7 @@ void fn_2_2BB34(void *arg0, void *arg1) {
         s16 row = *(s16 *)((u8 *)arg1 + 0xA);
         s16 charRow = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706];
         if (starMissionRequirementsTable[charRow][row].type != STAR_MISSION_TYPE_NONE) {
-            if (lbl_2_bss_1A8248->characters[lbl_800E869C[charRow]].inGameMissionTracker[row].starMissionStatus < 0) {
+            if (MISSION_TRACKER(lbl_800E869C[charRow])[row].starMissionStatus < 0) {
                 load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x5A, 1);
             } else {
                 load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x5A, 0);
@@ -3942,7 +3949,7 @@ void fn_2_2B884(void *arg0, void *arg1) {
         s16 charRow = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706];
         s16 row = *(s16 *)((u8 *)arg1 + 0xA);
         if (starMissionRequirementsTable[charRow][row].type != STAR_MISSION_TYPE_NONE) {
-            if ((s8)((u8 *)lbl_2_bss_1A8248)[lbl_800E869C[charRow] * 0x34 + 9 + row * 2] < 0) {
+            if (MISSION_TRACKER(lbl_800E869C[charRow])[row].starMissionStatus < 0) {
                 if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7710] == row) {
                     obj = SCENE_RECORD(arg0, arg1);
                     obj->flags |= UI_FLAG_VISIBLE;
@@ -4009,7 +4016,7 @@ void fn_2_2B654(void *arg0, void *arg1) {
         s16 row = *(s16 *)((u8 *)arg1 + 0xA);
         s16 charRow = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706];
         if (starMissionRequirementsTable[charRow][row].type != STAR_MISSION_TYPE_NONE) {
-            if (lbl_2_bss_1A8248->characters[lbl_800E869C[charRow]].inGameMissionTracker[row].starMissionStatus < 0) {
+            if (MISSION_TRACKER(lbl_800E869C[charRow])[row].starMissionStatus < 0) {
                 obj = SCENE_RECORD(arg0, arg1);
                 obj->flags |= UI_FLAG_VISIBLE;
                 obj = SCENE_RECORD(arg0, arg1);
@@ -4875,8 +4882,8 @@ void fn_2_28EA0(void *arg0, void *arg1) {
             obj = SCENE_RECORD(arg0, arg1);
             ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
         } else if (challenge_isCharRecruited(lbl_800E869C[*(s16 *)((u8 *)arg1 + 0x10)]) == 1) {
-            int flag;
             int charID = lbl_800E869C[*(s16 *)((u8 *)arg1 + 0x10)];
+            int flag;
             int a;
             int b;
             flag = lbl_2_bss_1A8248->_44B9[charID];
@@ -7287,7 +7294,7 @@ void fn_2_20D08(void) {
                 SCENE_STATE = 0xF;
             }
         } else {
-            if (PAD_NEW() & INPUT_BUTTON_START) {
+            if (PAD_NEW2() & INPUT_BUTTON_START) {
                 if (WORK_U8(0x72B9) == 1) {
                     WORK_U8(0x783F) = 1;
                 }
@@ -7352,7 +7359,7 @@ void fn_2_20D08(void) {
             }
             CHALLENGE_S8(0x4448) = -1;
         }
-        if (PAD_NEW() & INPUT_BUTTON_A) {
+        if (PAD_NEW2() & INPUT_BUTTON_A) {
             int recIdx = CHALLENGE_S16(0x16C2);
             if (CHALLENGE_REC(recIdx, 0x40F1) == 0 && CHALLENGE_REC(recIdx, 0x40F2) == 0 &&
                 CHALLENGE_REC(recIdx, 0x40F3) != CHALLENGE_BYTE(0x441C) && fn_2_45938() == 1) {
@@ -7390,7 +7397,7 @@ void fn_2_20D08(void) {
         }
         {
             int r = fn_2_684D0(0);
-            if (r >= 2 && r <= 6 && (PAD_NEW() & INPUT_BUTTON_A)) {
+            if (r >= 2 && r <= 6 && (PAD_NEW2() & INPUT_BUTTON_A)) {
                 fn_2_68654(0, 1);
                 fn_2_68638(0, r);
                 CHALLENGE_BYTE(0x44F3) = 1;
@@ -7399,7 +7406,7 @@ void fn_2_20D08(void) {
             }
         }
         {
-            u16 pad = PAD_NEW();
+            u16 pad = PAD_NEW2();
             if (pad & INPUT_BUTTON_START) {
                 CHALLENGE_BYTE(0x44F2) = 3;
                 WORK_S16(0x76D8) = 0;
@@ -7433,7 +7440,7 @@ void fn_2_20D08(void) {
         }
         {
             int r = fn_2_684D0(0);
-            if (r >= 2 && r <= 6 && (PAD_NEW() & INPUT_BUTTON_A)) {
+            if (r >= 2 && r <= 6 && (PAD_NEW2() & INPUT_BUTTON_A)) {
                 fn_2_68654(0, 1);
                 fn_2_68638(0, r);
                 CHALLENGE_BYTE(0x44F3) = 1;
@@ -8105,7 +8112,7 @@ void fn_2_20D08(void) {
             sndFXStartEx(0x1B7, lbl_800EFBA4[0], 0x3F, 0);
         }
         {
-            u16 pressed = PAD_NEW();
+            u16 pressed = PAD_NEW2();
             if (pressed & INPUT_BUTTON_A) {
                 SCENE_STATE = 0x42;
                 sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
@@ -8370,7 +8377,7 @@ int fn_2_20CB0(u32 x) {
 void fn_2_207FC(void) {
     int captain = 0;
     int difficulty;
-    int i;
+    s32 i;
 
     switch (Static_Stats_Tables.captainSelectedID[0]) {
     case CHAR_ID_MARIO:
@@ -8477,7 +8484,7 @@ void fn_2_207FC(void) {
 void fn_2_20328(void) {
     int captain = 0;
     int difficulty;
-    int i;
+    s32 i;
 
     switch (Static_Stats_Tables.captainSelectedID[0]) {
     case CHAR_ID_MARIO:
@@ -8766,7 +8773,7 @@ void fn_2_1FF0C(void) {
 
 #define RESET_RECORDS(type, flagOffset, bit)                                                   \
     for (k = 0; k < 0x33; k++) {                                                               \
-        if (CHALLENGE_S8(k * 10 + 0x40F0) == (type)) {                                         \
+        if ((s32)CHALLENGE_BYTE(k * 10 + 0x40F0) == (s32)(type)) {                              \
             if (CHALLENGE_BYTE(k * 10 + 0x40F1) == 1 || CHALLENGE_BYTE(k * 10 + 0x40F1) == 0) { \
                 if (lbl_2_bss_1A8248->captain == 5) {                                          \
                     if (CHALLENGE_BYTE(k * 10 + 0x40F2) == 1) {                                \
@@ -8790,7 +8797,7 @@ void fn_2_1FF0C(void) {
 void fn_2_1D440(void) {
     DrawingSceneStruct *item = currentDrawingItem;
     int i;
-    int j;
+    s32 j;
     int k;
     switch (ITEM_STATE) {
     case 0:
@@ -9052,7 +9059,7 @@ void fn_2_1D440(void) {
                 break;
             }
         }
-        if ((PAD_NEW() & INPUT_BUTTON_B) || PAD_STICK_Y() > 0x32) {
+        if ((PAD_NEW2() & INPUT_BUTTON_B) || PAD_STICK_Y() > 0x32) {
             ITEM_STATE = 13;
         }
         break;
@@ -9112,7 +9119,7 @@ void fn_2_1D440(void) {
                 break;
             }
         }
-        if (PAD_NEW() & (INPUT_BUTTON_B | INPUT_BUTTON_LEFT)) {
+        if (PAD_NEW2() & (INPUT_BUTTON_B | INPUT_BUTTON_LEFT)) {
             WORK_S32(0x76A4) = 0;
             ITEM_STATE = 1;
         } else if (PAD_STICK_Y() > 0x32) {
@@ -9168,14 +9175,14 @@ void fn_2_1D440(void) {
                 break;
             }
         }
-        if (PAD_NEW() & (INPUT_TRIGGER_L | INPUT_TRIGGER_R)) {
+        if (PAD_NEW2() & (INPUT_TRIGGER_L | INPUT_TRIGGER_R)) {
             RESET_RECORDS(0, 0x440C, 0x1)
             RESET_RECORDS(1, 0x440D, 0x2)
             RESET_RECORDS(2, 0x440E, 0x4)
             RESET_RECORDS(3, 0x440F, 0x8)
             RESET_RECORDS(4, 0x4410, 0x10)
         }
-        if (PAD_NEW() & (INPUT_BUTTON_B | INPUT_BUTTON_LEFT)) {
+        if (PAD_NEW2() & (INPUT_BUTTON_B | INPUT_BUTTON_LEFT)) {
             WORK_S32(0x76A4) = 0;
             ITEM_STATE = 1;
         } else if (PAD_STICK_Y() > 0x32) {
@@ -9258,9 +9265,9 @@ void fn_2_1D440(void) {
                     } else if ((pressed & INPUT_TRIGGER_R) && (*(u16 *)pad & INPUT_BUTTON_A)) {
                         WORK_S16(0x72BE) = (WORK_S16(0x72BE) + 1) % 0x1D;
                     } else if (*(u16 *)(pad + 4) & INPUT_BUTTON_Y) {
-                        *(f32 *)&CHALLENGE_BYTE(WORK_S16(0x72BE) * 0xBC + 0x2208) -= 0.1f;
+                        *(f32 *)((u8 *)lbl_2_bss_1A8248 + WORK_S16(0x72BE) * 0xBC + 0x2208) -= 0.1f;
                     } else if (*(u16 *)(pad + 4) & INPUT_BUTTON_X) {
-                        *(f32 *)&CHALLENGE_BYTE(WORK_S16(0x72BE) * 0xBC + 0x2208) += 0.1f;
+                        *(f32 *)((u8 *)lbl_2_bss_1A8248 + WORK_S16(0x72BE) * 0xBC + 0x2208) += 0.1f;
                     }
                 }
                 break;
@@ -9335,7 +9342,7 @@ void fn_2_1D440(void) {
                 break;
             }
         }
-        if (PAD_NEW() & (INPUT_BUTTON_A | INPUT_BUTTON_B)) {
+        if (PAD_NEW2() & (INPUT_BUTTON_A | INPUT_BUTTON_B)) {
             WORK_S32(0x76A4) = 0;
             ITEM_STATE = 1;
         } else if (PAD_STICK_Y() > 0x32) {
