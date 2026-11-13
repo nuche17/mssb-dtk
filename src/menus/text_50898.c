@@ -195,19 +195,24 @@ void fn_2_50D40(s32 idx) {
     }
 }
 
+static inline u16 *pickString(u16 **strings, s32 id, u16 *fallback) {
+    if (id == -1) {
+        return fallback;
+    }
+    return strings[id];
+}
+
 void fn_2_50DB4(s32 idx, s32 arg1, u16 *src) {
     u16 *dst;
     u16 v;
     s32 w;
-    TextBank *bank;
+    u16 **strings;
 
-    bank = screenTextArray.textBanks[*(u8 *)(STATE_BLOCK + 0x72B8)];
+    strings = screenTextArray.textBanks[*(u8 *)(STATE_BLOCK + 0x72B8)]->strings;
     if (lbl_2_bss_9600[idx] != 0) {
         lbl_2_bss_9600[idx]--;
     }
-    if (arg1 != -1) {
-        src = bank->strings[arg1];
-    }
+    src = pickString(strings, arg1, src);
     dst = (u16 *)((u8 *)lbl_2_bss_9608 + (idx << 9));
     for (;;) {
         w = lbl_2_bss_9600[idx];
@@ -238,15 +243,13 @@ void fn_2_50F20(s32 idx, s32 arg1, u16 *src) {
     u16 *dst;
     u16 v;
     s32 w;
-    TextBank *bank;
+    u16 **strings;
 
-    bank = screenTextArray.textBanks[*(u8 *)(STATE_BLOCK + 0x72B8)];
+    strings = screenTextArray.textBanks[*(u8 *)(STATE_BLOCK + 0x72B8)]->strings;
     if (lbl_2_bss_9604[idx] != 0) {
         lbl_2_bss_9604[idx]--;
     }
-    if (arg1 != -1) {
-        src = bank->strings[arg1];
-    }
+    src = pickString(strings, arg1, src);
     dst = (u16 *)((u8 *)lbl_2_bss_9A08 + (idx << 9));
     for (;;) {
         w = lbl_2_bss_9604[idx];
@@ -705,29 +708,33 @@ void fn_2_51C58(void) {
 }
 
 void fn_2_520A4(void) {
-    s16 st = *(s16 *)(lbl_2_bss_33FBCC + 0x2);
-
-    if (st == 0) {
+    switch (B33_U16(2)) {
+    case 0:
         fn_2_51890();
         insertGraphicDrawingFunction(fn_2_89F70, 0x3000);
-        lbl_2_bss_33FBCC[0x22] = 0x51;
-        *(s16 *)(lbl_2_bss_33FBCC + 0x2) = 1;
-    } else if (st == 1) {
-        if (lbl_2_bss_33FBCC[0x22] != 0x51) {
+        B33(0x22) = 0x51;
+        B33_U16(2) = 1;
+        break;
+    case 1:
+        if (B33(0x22) != 0x51) {
             fn_2_51C58();
         }
-    } else if (st == 2) {
-        lbl_2_bss_33FBCC[0x22] = 0x52;
-        lbl_2_bss_33FBCC[0xE] = 1;
-        *(s16 *)(lbl_2_bss_33FBCC + 0x2) = 0;
-        lbl_2_bss_9E08 = 10;
-    } else if (st == 3) {
-        lbl_2_bss_33FBCC[0x22] = 0x52;
+        break;
+    case 2:
+        B33(0x22) = 0x52;
+        B33(0xE) = 1;
+        B33_U16(2) = 0;
+        lbl_2_bss_9E08 = 0xA;
+        break;
+    case 3:
+        B33(0x22) = 0x52;
         lbl_2_bss_9E08 = 5;
-        lbl_2_bss_33FBCC[0xE] = 1;
-        *(s16 *)(lbl_2_bss_33FBCC + 0x2) = 0;
-    } else if (st == 4) {
+        B33(0xE) = 1;
+        B33_U16(2) = 0;
+        break;
+    case 4:
         fn_2_51A1C();
+        break;
     }
 }
 
@@ -961,34 +968,7 @@ void fn_2_52690(void) {
         }
         break;
     case 6:
-        switch (B33_U16(2)) {
-        case 0:
-            fn_2_51890();
-            insertGraphicDrawingFunction(fn_2_89F70, 0x3000);
-            B33(0x22) = 0x51;
-            B33_U16(2) = 1;
-            break;
-        case 1:
-            if (B33(0x22) != 0x51) {
-                fn_2_51C58();
-            }
-            break;
-        case 2:
-            B33(0x22) = 0x52;
-            B33(0xE) = 1;
-            B33_U16(2) = 0;
-            lbl_2_bss_9E08 = 0xA;
-            break;
-        case 3:
-            B33(0x22) = 0x52;
-            lbl_2_bss_9E08 = 5;
-            B33(0xE) = 1;
-            B33_U16(2) = 0;
-            break;
-        case 4:
-            fn_2_51A1C();
-            break;
-        }
+        fn_2_520A4();
         break;
     case 7:
         lbl_2_bss_9E08 = 8;
