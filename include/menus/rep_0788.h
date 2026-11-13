@@ -152,6 +152,6 @@ void fn_2_32F08(void *arg0, void *arg1);
 void fn_2_331C8(void *arg0, void *arg1);
 void fn_2_33614(void *arg0, void *arg1);
 void fn_2_33720(void *arg0, void *arg1);
-void fn_2_338D4(void);
+void fn_2_338D4(void *arg0, void *arg1);
 
 #endif // !__MENUS_REP_0788_H_

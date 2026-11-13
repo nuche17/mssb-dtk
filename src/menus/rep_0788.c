@@ -34,6 +34,11 @@ static inline void setRecordPlayMode(void *scene, void *rec, u8 mode) {
     ((UIRecord *)SCENE_RECORD(scene, rec))->playMode = mode;
 }
 
+static inline s16 abs16(int v) {
+    return v < 0 ? -v : v;
+}
+
+void fn_80036270(void *scene, u32 element, u32 part, int frame, s16 *x, s16 *y);
 void fn_2_68E68(void);
 void fn_2_8FD14(void);
 void fn_2_8AEE0(void);
@@ -108,8 +113,156 @@ void fn_2_53DF8(void *arg0);
 void fn_2_4E858(void *arg0);
 
 // .text:0x000338D4 size:0x59C mapped:0x80672968
-void fn_2_338D4(void) {
-    return;
+void fn_2_338D4(void *arg0, void *arg1) {
+    s16 *state;
+    int packed = *(s16 *)((u8 *)arg1 + 0x10);
+    int part = packed & 0xF;
+    s16 value;
+    s16 magnitude;
+    s16 which = packed >> 4;
+    s16 result;
+    state = (s16 *)((u8 *)arg1 + 4);
+    result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 2: {
+        TextGraphicsObject *obj;
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        setRecordPlayMode(arg0, arg1, UI_PLAY_FORWARD);
+        switch (which) {
+        case 0:
+            value = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7766];
+            magnitude = abs16(*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7766]);
+            break;
+        case 1:
+            value = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7768];
+            magnitude = abs16(*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7768]);
+            break;
+        case 2:
+            value = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x776A];
+            magnitude = abs16(*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x776A]);
+            break;
+        case 3:
+            value = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x776C];
+            magnitude = abs16(*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x776C]);
+            break;
+        }
+        if (magnitude == 0x2710) {
+            load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x2C, 0x17);
+        } else {
+            switch (*(s16 *)((u8 *)arg1 + 0xA)) {
+            case 0: {
+                s16 digit = magnitude % 10;
+                load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x2C, (which == 3) ? digit : (s16)(digit + 0xC));
+                break;
+            }
+            case 1: {
+                s16 digit = magnitude / 10 % 10;
+                if (magnitude < 10) {
+                    digit = 0x17;
+                } else {
+                    switch (which) {
+                    case 3:
+                        break;
+                    default:
+                        digit = digit + 0xC;
+                        break;
+                    }
+                }
+                load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x2C, digit);
+                break;
+            }
+            case 2: {
+                s16 digit = magnitude / 100 % 10;
+                if (magnitude < 100) {
+                    digit = 0x17;
+                } else {
+                    switch (which) {
+                    case 3:
+                        break;
+                    default:
+                        digit = digit + 0xC;
+                        break;
+                    }
+                }
+                load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x2C, digit);
+                break;
+            }
+            case 3: {
+                s16 icon;
+                s16 x0;
+                s16 y0;
+                s16 x1;
+                s16 y1;
+                s16 width;
+                if (value < 0) {
+                    if (which == 3) {
+                        icon = 0xB;
+                    } else {
+                        icon = 0x16;
+                    }
+                } else if (value > 0) {
+                    if (which == 3) {
+                        icon = 0xA;
+                    } else {
+                        icon = 0x17;
+                    }
+                } else {
+                    icon = 0x17;
+                }
+                load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x2C, icon);
+                fn_80036270(arg0, 0x280, 0, 0, &x0, &y0);
+                fn_80036270(arg0, 0x280, 2, 0, &x0, &y0);
+                fn_80036270(arg0, 0x280, 1, 0, &x1, &y1);
+                width = abs16(x1 - x0);
+                fn_80036270(arg0, 0x280, (s16)part, 0, &x0, &y0);
+                if (magnitude == 0) {
+                    x0 = 0;
+                } else if (magnitude < 10) {
+                    x0 = width * 2;
+                } else if (magnitude < 100) {
+                    x0 = width;
+                } else {
+                    x0 = 0;
+                }
+                ((UIRecord *)SCENE_RECORD(arg0, arg1))->pos.x = x0;
+                break;
+            }
+            }
+        }
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        setRecordPlayMode(arg0, arg1, UI_PLAY_BACKWARD);
+        *state = 6;
+        break;
+    }
+    case 6: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        if ((((UIRecord *)obj)->frame >> 16) == 0) {
+            ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+            *state = 7;
+        }
+        break;
+    }
+    case 7: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        break;
+    }
+    case 0x25:
+        break;
+    }
 }
 
 // .text:0x00033720 size:0x1B4 mapped:0x806727B4
