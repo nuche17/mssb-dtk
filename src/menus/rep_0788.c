@@ -1362,8 +1362,7 @@ void fn_2_31538(void *arg0, void *arg1) {
         break;
     case 2: {
         TextGraphicsObject *obj;
-        s8 icon = lbl_2_bss_1A824C[0x190000 + 0x7868 + (s8)lbl_2_bss_1A824C[0x190000 + 0x7867]];
-        load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x83, icon);
+        load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x83, ((s8 *)&WORK_U8(0x7868))[(s8)WORK_U8(0x7867)]);
         obj = SCENE_RECORD(arg0, arg1);
         obj->flags |= UI_FLAG_VISIBLE;
         obj = SCENE_RECORD(arg0, arg1);
@@ -4400,7 +4399,7 @@ void fn_2_2A77C(void *arg0, void *arg1) {
         u8 charID = lbl_800E869C[*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706]];
         int rankRow = fn_2_44F14(charID);
         int rankCol = fn_8006CDC0(charID);
-        text_setPtrToWhereCharsAreStored(*(s16 *)((u8 *)arg1 + 0x14), 0, ((s16 *)starRankTextIDs)[*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706]] + starRankByMissionCount[rankRow][rankCol]);
+        text_setPtrToWhereCharsAreStored(*(s16 *)((u8 *)arg1 + 0x14), 0, starRankByMissionCount[rankRow][rankCol] + ((s16 *)starRankTextIDs)[*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706]]);
         obj = SCENE_RECORD(arg0, arg1);
         obj->flags |= UI_FLAG_VISIBLE;
         *state = 3;
@@ -4472,12 +4471,17 @@ void fn_2_2A338(void *arg0, void *arg1) {
         TextGraphicsObject *obj;
         s16 charRow = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706];
         s16 row = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7710];
-        ChallengeTrackingStruct *tracker = &lbl_2_bss_1A8248->characters[lbl_800E869C[charRow]];
-        s16 textID = starMissionDisplayRules[charRow][row].textID;
-        s16 mode = starMissionDisplayRules[charRow][row].mode;
-        s16 flags = starMissionRequirementsTable[charRow][row].flags;
-        s16 minRow = starMissionRequirementsTable[charRow][row]._6[0];
+        s16 textID;
+        ChallengeTrackingStruct *tracker;
+        s16 flags;
+        s16 minRow;
+        s16 mode;
         u8 difficulty;
+        textID = starMissionDisplayRules[charRow][row].textID;
+        mode = starMissionDisplayRules[charRow][row].mode;
+        tracker = &lbl_2_bss_1A8248->characters[lbl_800E869C[charRow]];
+        flags = starMissionRequirementsTable[charRow][row].flags;
+        minRow = starMissionRequirementsTable[charRow][row]._6[0];
         if (mode != -1 && (s8)tracker->inGameMissionTracker[row].shownOnPauseMenu == 0) {
             difficulty = lbl_2_bss_1A8248->difficulty;
             if (difficulty < minRow) {
@@ -4491,7 +4495,7 @@ void fn_2_2A338(void *arg0, void *arg1) {
             } else {
                 text_setPtrToWhereCharsAreStored(*(s16 *)((u8 *)arg1 + 0x14), 0, 0x1C5);
             }
-        } else if (mode != -1 && tracker->inGameMissionTracker[row].shownOnPauseMenu == 1 && (s8)tracker->inGameMissionTracker[row].starMissionStatus == 0) {
+        } else if (mode != -1 && (s32)tracker->inGameMissionTracker[row].shownOnPauseMenu == 1 && (s8)tracker->inGameMissionTracker[row].starMissionStatus == 0) {
             difficulty = lbl_2_bss_1A8248->difficulty;
             if (difficulty < minRow) {
                 text_setPtrToWhereCharsAreStored(*(s16 *)((u8 *)arg1 + 0x14), 0, 0x1C6);

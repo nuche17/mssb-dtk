@@ -61,6 +61,14 @@ static inline UIRecord *stadiumCursorRec(TextScene *scene, s32 base, s32 cursor)
 
 #define STADIUM_REC(scene, index) stadiumRec(scene, index)
 
+static inline BOOL stadiumIsLocked(u8 *icons, s32 stadium) {
+    BOOL locked = FALSE;
+    if (icons[stadium] == 1 && superstarUnlocked[0xF5] == 0) {
+        locked = TRUE;
+    }
+    return locked;
+}
+
 // .text:0x000854B0 size:0x18C mapped:0x806C4544
 void fn_2_854B0(void) {
     switch (menuControlVariables->currentState) {
@@ -509,11 +517,9 @@ void fn_2_84194(TextScene *scene) {
 // .text:0x00083B34 size:0x660 mapped:0x806C2BC8
 void stadiumRandomRelated(TextScene *scene, s32 arg) {
     u8 *tbl = lbl_2_data_2D998;
-    s32 cursor;
-    s32 icon;
-    s32 flag;
-    s32 count;
+    s16 icon;
     s32 need;
+    s32 count;
     s32 i;
 
     if (stadiumStepIsClear(gameSetUpStep[0x2B])) {
@@ -521,64 +527,65 @@ void stadiumRandomRelated(TextScene *scene, s32 arg) {
             stadiumRec(scene, i)->playMode = UI_PLAY_STOP;
             stadiumRec(scene, i)->frame = 0;
         }
-        if (lbl_803CBCD8[0] == 0 || lbl_803CBCD8[1] == 0) {
-            *(u32 *)((u8 *)(graphicsRelatedArray[scene->firstHandle + 0].object) + 0x58) = (*(u32 *)((u8 *)(graphicsRelatedArray[scene->firstHandle + 0].object) + 0x58) & ~0xFF) | 0xFF;
-            *(u32 *)((u8 *)(graphicsRelatedArray[scene->firstHandle + 1].object) + 0x58) = (*(u32 *)((u8 *)(graphicsRelatedArray[scene->firstHandle + 1].object) + 0x58) & ~0xFF) | 0xFF;
-            *(u32 *)((u8 *)(graphicsRelatedArray[scene->firstHandle + 0].object) + 0x5C) = 0;
-            *(u32 *)((u8 *)(graphicsRelatedArray[scene->firstHandle + 1].object) + 0x5C) = 0xA0000;
-            cursor = menuCursors[0x11];
-            flag = tbl[0x2EC + cursor] == 1 && superstarUnlocked[0xF5] == 0;
-            if (lbl_803CBCD8[0] != 0) {
-                load_Icon(scene, 0, 1, 0x20, tbl[0x2EC + arg]);
-                if ((s8)tbl[0x954] != -1) {
-                    load_Icon(scene, 1, 1, 0x20, tbl[0x2EC + (s8)tbl[0x954]]);
+        if (lbl_803CBCD8[0] != 0) {
+            if ((s8)lbl_803CBCD8[1] == 0) {
+                stadiumRec(scene, 0)->rgba = (stadiumRec(scene, 0)->rgba & ~0xFF) | 0xFF;
+                stadiumRec(scene, 1)->rgba = (stadiumRec(scene, 1)->rgba & ~0xFF) | 0xFF;
+                stadiumRec(scene, 0)->frame = 0;
+                stadiumRec(scene, 1)->frame = 0xA0000;
+                load_Icon(scene, 0, 1, 0x20, (lbl_2_data_2D998 + 0x2EC)[arg]);
+                if ((s8)tbl[0x954] == -1) {
+                    load_Icon(scene, 1, 1, 0x20, (lbl_2_data_2D998 + 0x2EC)[arg]);
                 } else {
-                    load_Icon(scene, 1, 1, 0x20, tbl[0x2EC + arg]);
+                    load_Icon(scene, 1, 1, 0x20, (lbl_2_data_2D998 + 0x2EC)[(s8)tbl[0x954]]);
                 }
-            ((u8 *)(graphicsRelatedArray[scene->firstHandle + 0].object))[0x68] = 1;
-            ((u8 *)(graphicsRelatedArray[scene->firstHandle + 1].object))[0x68] = 1;
+                stadiumRec(scene, 0)->playMode = UI_PLAY_FORWARD;
+                stadiumRec(scene, 1)->playMode = UI_PLAY_FORWARD;
                 arg = (s8)tbl[0x954];
-            } else {
-                load_Icon(scene, 0, 1, 0x20, flag ? 0x12 : tbl[0x2EC + arg]);
-                if ((s8)tbl[0x954] != -1) {
-                    icon = tbl[0x2EC + (s8)tbl[0x954]];
-                    if (icon == 1 && superstarUnlocked[0xF5] == 0) {
-                        icon = 0x12;
-                    }
-                    load_Icon(scene, 1, 1, 0x20, icon);
-                } else {
-                    load_Icon(scene, 1, 1, 0x20, flag ? 0x12 : tbl[0x2EC + arg]);
-                }
-            ((u8 *)(graphicsRelatedArray[scene->firstHandle + 0].object))[0x68] = 1;
-            ((u8 *)(graphicsRelatedArray[scene->firstHandle + 1].object))[0x68] = 4;
             }
+        } else {
+            stadiumRec(scene, 0)->rgba = (stadiumRec(scene, 0)->rgba & ~0xFF) | 0xFF;
+            stadiumRec(scene, 1)->rgba = (stadiumRec(scene, 1)->rgba & ~0xFF) | 0xFF;
+            stadiumRec(scene, 0)->frame = 0;
+            stadiumRec(scene, 1)->frame = 0xA0000;
+            icon = stadiumIsLocked(lbl_2_data_2D998 + 0x2EC, menuCursors[0x11]) ? 0x12 : (lbl_2_data_2D998 + 0x2EC)[arg];
+            load_Icon(scene, 0, 1, 0x20, icon);
+            if ((s8)tbl[0x954] == -1) {
+                icon = stadiumIsLocked(lbl_2_data_2D998 + 0x2EC, menuCursors[0x11]) ? 0x12 : (lbl_2_data_2D998 + 0x2EC)[arg];
+                load_Icon(scene, 1, 1, 0x20, icon);
+            } else {
+                u8 prev = (lbl_2_data_2D998 + 0x2EC)[(s8)tbl[0x954]];
+                if (prev == 1 && superstarUnlocked[0xF5] == 0) {
+                    icon = 0x12;
+                } else {
+                    icon = prev;
+                }
+                load_Icon(scene, 1, 1, 0x20, icon);
+            }
+            stadiumRec(scene, 0)->playMode = UI_PLAY_FORWARD;
+            stadiumRec(scene, 1)->playMode = UI_PLAY_BACKWARD;
         }
-
-            *(u32 *)((u8 *)(graphicsRelatedArray[scene->firstHandle + arg + 6].object) + 0x5C) = 0x10000;
-            ((u8 *)(graphicsRelatedArray[scene->firstHandle + arg + 6].object))[0x68] = 1;
-        cursor = menuCursors[0x11];
-        flag = tbl[0x2EC + cursor] == 1 && superstarUnlocked[0xF5] == 0;
-        icon = flag ? 6 : tbl[0x2EC + arg];
-            *(u32 *)((u8 *)(graphicsRelatedArray[scene->firstHandle + 2].object) + 0x5C) = 0;
+        stadiumCursorRec(scene, 6, arg)->frame = 0x10000;
+        stadiumCursorRec(scene, 6, arg)->playMode = UI_PLAY_FORWARD;
+        icon = stadiumIsLocked(lbl_2_data_2D998 + 0x2EC, menuCursors[0x11]) ? 6 : (lbl_2_data_2D998 + 0x2EC)[arg];
+        stadiumRec(scene, 2)->frame = 0;
         load_Icon(scene, 2, 1, 0x22, icon);
-        flag = tbl[0x2EC + cursor] == 1 && superstarUnlocked[0xF5] == 0;
-        icon = flag ? 6 : tbl[0x2EC + arg];
-            *(u32 *)((u8 *)(graphicsRelatedArray[scene->firstHandle + 3].object) + 0x5C) = 0;
+        icon = stadiumIsLocked(lbl_2_data_2D998 + 0x2EC, menuCursors[0x11]) ? 6 : (lbl_2_data_2D998 + 0x2EC)[arg];
+        stadiumRec(scene, 3)->frame = 0;
         load_Icon(scene, 3, 1, 0x25, icon);
         load_Icon(scene, 3, 3, 0x24, icon);
-            ((u8 *)(graphicsRelatedArray[scene->firstHandle + 3].object))[0x68] = 1;
+        stadiumRec(scene, 3)->playMode = UI_PLAY_FORWARD;
         gameSetUpStep[0x2B] = 1;
     }
 
     if (gameSetUpStep[0x2B] == 1) {
-        if (lbl_803CBCD8[1] == 0) {
+        count = 0;
+        need = 0;
+        if ((s8)lbl_803CBCD8[1] == 0) {
             count = maybeCheckAndResetGrapicsElement(scene, 0, 0xA) != 0;
             count += maybeCheckAndResetGrapicsElement(scene, 1, 0) != 0;
-            count += maybeCheckAndResetGrapicsElement(scene, arg + 6, 4) != 0;
             need = 3;
-        } else {
-            count = 0;
-            need = 0;
+            count += maybeCheckAndResetGrapicsElement(scene, arg + 6, 4) != 0;
         }
         if (count == need) {
             tbl[0x955] = tbl[0x954];
