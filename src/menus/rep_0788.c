@@ -1,3 +1,4 @@
+#define SQRT2_LINKAGE static
 #include "menus/rep_0788.h"
 #include "header_rep_data.h"
 #include "game/challenge/challenge_state.h"
@@ -7542,14 +7543,14 @@ void fn_2_20D08(void) {
         if (item->state == 1) {
             if (CHALLENGE_S8(0x4443) == 1) {
                 currentDrawingItem->func = fn_2_1B7B4;
-                *(s16 *)((u8 *)&inningSetting + 0x58) = 3;
-                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+                g_MenuControl.sceneMode = 3;
+                g_MenuControl.sceneState = 0;
             } else {
                 fn_2_4D194();
                 currentDrawingItem->func = currentScreenFunctionChooser;
                 changeScreenVariables(0xA);
-                *(s16 *)((u8 *)&inningSetting + 0x58) = 3;
-                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+                g_MenuControl.sceneMode = 3;
+                g_MenuControl.sceneState = 0;
             }
         }
         break;
@@ -7593,14 +7594,14 @@ void fn_2_20D08(void) {
         if (item->state == 1) {
             if (CHALLENGE_S8(0x443E) == 1) {
                 currentDrawingItem->func = fn_2_1B7B4;
-                *(s16 *)((u8 *)&inningSetting + 0x58) = 4;
-                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+                g_MenuControl.sceneMode = 4;
+                g_MenuControl.sceneState = 0;
             } else {
                 fn_2_4CEE0();
                 currentDrawingItem->func = currentScreenFunctionChooser;
                 changeScreenVariables(4);
-                *(s16 *)((u8 *)&inningSetting + 0x58) = 4;
-                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+                g_MenuControl.sceneMode = 4;
+                g_MenuControl.sceneState = 0;
             }
         }
         break;
@@ -7672,14 +7673,14 @@ void fn_2_20D08(void) {
             fn_2_68654(0, 0);
             if (CHALLENGE_S8(0x443C) == 1) {
                 currentDrawingItem->func = fn_2_1B7B4;
-                *(s16 *)((u8 *)&inningSetting + 0x58) = 5;
-                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+                g_MenuControl.sceneMode = 5;
+                g_MenuControl.sceneState = 0;
             } else {
                 fn_2_4C9C4();
                 currentDrawingItem->func = currentScreenFunctionChooser;
                 changeScreenVariables(4);
-                *(s16 *)((u8 *)&inningSetting + 0x58) = 5;
-                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+                g_MenuControl.sceneMode = 5;
+                g_MenuControl.sceneState = 0;
             }
         }
         break;
@@ -7726,14 +7727,14 @@ void fn_2_20D08(void) {
         if (item->state == 1) {
             if (CHALLENGE_S8(0x4441) == 1) {
                 currentDrawingItem->func = fn_2_1B7B4;
-                *(s16 *)((u8 *)&inningSetting + 0x58) = 6;
-                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+                g_MenuControl.sceneMode = 6;
+                g_MenuControl.sceneState = 0;
             } else {
                 fn_2_4C81C();
                 currentDrawingItem->func = currentScreenFunctionChooser;
                 changeScreenVariables(4);
-                *(s16 *)((u8 *)&inningSetting + 0x58) = 6;
-                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+                g_MenuControl.sceneMode = 6;
+                g_MenuControl.sceneState = 0;
             }
         }
         break;
@@ -7888,8 +7889,8 @@ void fn_2_20D08(void) {
     case 63:
         if (item->state == 1) {
             changeScreenVariables(0xF);
-            *(s16 *)((u8 *)&inningSetting + 0x58) = 0xA;
-            *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+            g_MenuControl.sceneMode = 0xA;
+            g_MenuControl.sceneState = 0;
             currentDrawingItem->func = currentScreenFunctionChooser;
             SCENE_STATE = 0;
         }
@@ -8298,8 +8299,8 @@ void fn_2_20D08(void) {
     case 123:
         if (item->state == 1) {
             changeScreenVariables(0xF);
-            *(s16 *)((u8 *)&inningSetting + 0x58) = 8;
-            *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+            g_MenuControl.sceneMode = 8;
+            g_MenuControl.sceneState = 0;
             currentDrawingItem->func = currentScreenFunctionChooser;
             SCENE_STATE = 0;
         }
@@ -8313,8 +8314,8 @@ void fn_2_20D08(void) {
     case 125:
         if (item->state == 1) {
             changeScreenVariables(0xF);
-            *(s16 *)((u8 *)&inningSetting + 0x58) = 9;
-            *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+            g_MenuControl.sceneMode = 9;
+            g_MenuControl.sceneState = 0;
             currentDrawingItem->func = currentScreenFunctionChooser;
             SCENE_STATE = 0;
         }
@@ -8328,8 +8329,8 @@ void fn_2_20D08(void) {
     case 127:
         if (item->state == 1) {
             changeScreenVariables(5);
-            *(s16 *)((u8 *)&inningSetting + 0x58) = 9;
-            *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+            g_MenuControl.sceneMode = 9;
+            g_MenuControl.sceneState = 0;
             currentDrawingItem->func = currentScreenFunctionChooser;
             SCENE_STATE = 0;
         }

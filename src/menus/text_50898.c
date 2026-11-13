@@ -1,4 +1,5 @@
 #include "menus/text_50898.h"
+#include "static/menu_control.h"
 #include "text/text.h"
 #include "game/character_stats.h"
 #include "Unknown/File_0x800b0a14.h"
@@ -34,7 +35,6 @@ extern u8 cursorPositions[];
 extern u8 lineUpInfoStruct[];
 extern u8 cardCheck[];
 extern u8 g_d_GameSettings[];
-extern u8 inningSetting[];
 extern u8 g_MatchInfo[];
 extern u8 lbl_800EFBA4[];
 extern u8 lbl_80354768[];
@@ -873,8 +873,8 @@ static void fn_2_52690_reset(void) {
 }
 
 static void fn_2_52690_innings(s32 value) {
-    *(s16 *)(inningSetting + 0x58) = (s16)value;
-    *(s16 *)(inningSetting + 0x5A) = 0;
+    g_MenuControl.sceneMode = (s16)value;
+    g_MenuControl.sceneState = 0;
 }
 
 void fn_2_52690(void) {
@@ -928,7 +928,7 @@ void fn_2_52690(void) {
         *(s32 *)(menuCursors + 0x54) = superstarUnlocked[0xF6];
         break;
     case 2:
-        v = *(s16 *)(inningSetting + 0x58);
+        v = g_MenuControl.sceneMode;
         if (v == 9) {
             cardCheck[0x52] = 3;
         } else if (v == 8) {
@@ -944,7 +944,7 @@ void fn_2_52690(void) {
     case 3:
         c = cardCheck[0x45];
         if (c == 2) {
-            v = *(s16 *)(inningSetting + 0x58);
+            v = g_MenuControl.sceneMode;
             if (v == 9) {
                 g_MatchInfo[0x39] = 1;
             } else if (v == 10) {
@@ -952,7 +952,7 @@ void fn_2_52690(void) {
             }
             fn_2_52690_tailSuperstar();
         } else if (c == 3 || c == 4) {
-            v = *(s16 *)(inningSetting + 0x58);
+            v = g_MenuControl.sceneMode;
             if (v == 10) {
                 fn_8004A34C(cardCheck, 0, 0x35, 0, 0);
                 lbl_2_bss_9E08 = 4;
@@ -1012,7 +1012,7 @@ void fn_2_52690(void) {
                     lbl_2_bss_33FBCC[0x22] = 0x52;
                     lbl_2_bss_9E08 = 5;
                 } else {
-                    v = *(s16 *)(inningSetting + 0x58);
+                    v = g_MenuControl.sceneMode;
                     if (v == 9) {
                         fn_8004A34C(cardCheck, 0, 0x24, 0, 0);
                     } else if (v == 10) {
@@ -1125,7 +1125,7 @@ void fn_2_52690(void) {
         } else {
             fn_80035B50(6);
             fn_80035B50(8);
-            v = *(s16 *)(inningSetting + 0x58);
+            v = g_MenuControl.sceneMode;
             if (v == 8) {
                 fn_80042D38(0x10);
             } else {
@@ -1154,7 +1154,7 @@ void fn_2_52690(void) {
         } else {
             fn_80035B50(6);
             fn_80035B50(8);
-            v = *(s16 *)(inningSetting + 0x58);
+            v = g_MenuControl.sceneMode;
             if (v == 10) {
                 fn_2_52690_innings(9);
                 fn_80042D38(5);
