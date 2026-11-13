@@ -197,10 +197,7 @@ void fn_2_851A8(void) {
 
 // .text:0x00085160 size:0x48 mapped:0x806C41F4
 void fn_2_85160(void) {
-    s16 remaining = currentDrawingItem->state - 1;
-
-    currentDrawingItem->state = remaining;
-    if (remaining == 0) {
+    if (--currentDrawingItem->state == 0) {
         updateCharacterSelectProcessCode(0, 4);
         removeCurrentDrawingItem();
     }
@@ -240,7 +237,7 @@ void stadiumScreenAnimations_maybe(void) {
         icon = lbl_2_data_2DC84[menuCursors[0x11]];
     }
     if (menuCursors[0x11] != 0) {
-        load_Icon(node, 0, 1, icon, 0x20);
+        load_Icon(node, 0, 1, 0x20, icon);
     }
     lbl_803CBCD8[4] = 0;
     *(s16 *)((u8 *)node + 0x18) = 0;
