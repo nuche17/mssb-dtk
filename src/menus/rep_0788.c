@@ -4559,14 +4559,180 @@ void fn_2_29F18(void *arg0, void *arg1) {
     }
 }
 
+#define RECRUIT_CHAR_ID lbl_800E869C[*(s16 *)((u8 *)arg1 + 0x10)]
+
+#define RECRUIT_ICON(flagField)                                                                      \
+    if (challenge_isCharRecruited(RECRUIT_CHAR_ID) == 1) {                                           \
+        int flag = lbl_2_bss_1A8248->flagField[RECRUIT_CHAR_ID];                                      \
+        if (flag == 1) {                                                                             \
+            ((UIRecord *)SCENE_RECORD(arg0, arg1))->elementIndex = 0x2E;                             \
+            load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x43, *(s16 *)((u8 *)arg1 + 0x10));      \
+            setRecordFrame(arg0, arg1, 0);                                                           \
+            setRecordPlayMode(arg0, arg1, UI_PLAY_FORWARD);                                          \
+        } else {                                                                                     \
+            ((UIRecord *)SCENE_RECORD(arg0, arg1))->elementIndex = 0x2D;                             \
+            load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x43, *(s16 *)((u8 *)arg1 + 0x10));      \
+            setRecordFrame(arg0, arg1, 0);                                                           \
+            setRecordPlayMode(arg0, arg1, UI_PLAY_STOP);                                             \
+        }                                                                                            \
+    } else {                                                                                         \
+        ((UIRecord *)SCENE_RECORD(arg0, arg1))->elementIndex = 0x2D;                                 \
+        load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x43, *(s16 *)((u8 *)arg1 + 0x10));          \
+        setRecordFrame(arg0, arg1, 0x10000);                                                         \
+        setRecordPlayMode(arg0, arg1, UI_PLAY_STOP);                                                 \
+    }
+
 // .text:0x00029884 size:0x694 mapped:0x80668918
-void fn_2_29884(void) {
-    return;
+void fn_2_29884(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 2: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        if (*(u8 *)&lbl_2_bss_1A824C[0x190000 + 0x78F6] == 0) {
+            RECRUIT_ICON(recruitedChar)
+        } else {
+            RECRUIT_ICON(_44B9)
+        }
+        *state = 0x25;
+        break;
+    }
+    case 8: {
+        RECRUIT_ICON(_44B9)
+        *state = 0x25;
+        break;
+    }
+    case 5:
+        *(s16 *)((u8 *)arg1 + 0x6) = 0x28;
+        *state = 6;
+        break;
+    case 6: {
+        s16 *counter = (s16 *)((u8 *)arg1 + 0x6);
+        if ((*counter)-- <= 0) {
+            TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+    case 7:
+    case 9:
+    case 10:
+    case 0x25:
+        break;
+    }
 }
 
+#define RECRUIT_BADGE_B(decls)                                                                      \
+    if (challenge_isCharRecruited(RECRUIT_CHAR_ID) == 1) {                                          \
+        decls                                                                                       \
+        flag = lbl_2_bss_1A8248->_44B9[charID];                                                     \
+        a = fn_8006CDC0(charID);                                                                    \
+        b = fn_2_44E2C(charID);                                                                     \
+        if (flag == 1 && a == b) {                                                                  \
+            obj = SCENE_RECORD(arg0, arg1);                                                         \
+            obj->flags |= UI_FLAG_VISIBLE;                                                          \
+            setRecordPlayMode(arg0, arg1, UI_PLAY_FORWARD);                                         \
+        } else if (flag == 0 && a == b) {                                                           \
+            obj = SCENE_RECORD(arg0, arg1);                                                         \
+            obj->flags |= UI_FLAG_VISIBLE;                                                          \
+            setRecordPlayMode(arg0, arg1, UI_PLAY_STOP);                                            \
+        } else {                                                                                    \
+            obj = SCENE_RECORD(arg0, arg1);                                                         \
+            obj->flags &= ~UI_FLAG_VISIBLE;                                                         \
+            setRecordPlayMode(arg0, arg1, UI_PLAY_STOP);                                            \
+        }                                                                                           \
+    } else {                                                                                        \
+        obj = SCENE_RECORD(arg0, arg1);                                                             \
+        obj->flags &= ~UI_FLAG_VISIBLE;                                                             \
+        setRecordPlayMode(arg0, arg1, UI_PLAY_STOP);                                                \
+    }
+
 // .text:0x0002926C size:0x618 mapped:0x80668300
-void fn_2_2926C(void) {
-    return;
+void fn_2_2926C(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 2: {
+        TextGraphicsObject *obj;
+        setRecordFrame(arg0, arg1, 0);
+        if (*(u8 *)&lbl_2_bss_1A824C[0x190000 + 0x78F6] == 0) {
+            ((UIRecord *)SCENE_RECORD(arg0, arg1))->elementIndex = 0x2C;
+            if (challenge_isCharRecruited(RECRUIT_CHAR_ID) == 1) {
+                int flag = lbl_2_bss_1A8248->recruitedChar[RECRUIT_CHAR_ID];
+                if (flag == 1) {
+                    obj = SCENE_RECORD(arg0, arg1);
+                    obj->flags |= UI_FLAG_VISIBLE;
+                    setRecordPlayMode(arg0, arg1, UI_PLAY_FORWARD);
+                } else {
+                    obj = SCENE_RECORD(arg0, arg1);
+                    obj->flags &= ~UI_FLAG_VISIBLE;
+                    setRecordPlayMode(arg0, arg1, UI_PLAY_STOP);
+                }
+            } else {
+                obj = SCENE_RECORD(arg0, arg1);
+                obj->flags &= ~UI_FLAG_VISIBLE;
+                setRecordPlayMode(arg0, arg1, UI_PLAY_STOP);
+            }
+        } else {
+            ((UIRecord *)SCENE_RECORD(arg0, arg1))->elementIndex = 0x2F;
+            RECRUIT_BADGE_B(int charID = RECRUIT_CHAR_ID; int flag; int a; int b;)
+        }
+        *state = 0x25;
+        break;
+    }
+    case 8: {
+        TextGraphicsObject *obj;
+        setRecordFrame(arg0, arg1, 0);
+        ((UIRecord *)SCENE_RECORD(arg0, arg1))->elementIndex = 0x2F;
+        RECRUIT_BADGE_B(int flag; int charID = RECRUIT_CHAR_ID; int a; int b;)
+        *state = 0x25;
+        break;
+    }
+    case 5:
+        *(s16 *)((u8 *)arg1 + 0x6) = 0x28;
+        *state = 6;
+        break;
+    case 6: {
+        s16 *counter = (s16 *)((u8 *)arg1 + 0x6);
+        if ((*counter)-- <= 0) {
+            TextGraphicsObject *obj;
+            setRecordPlayMode(arg0, arg1, UI_PLAY_STOP);
+            obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+    case 7:
+    case 9:
+    case 10:
+    case 0x25:
+        break;
+    }
 }
 
 // .text:0x00028EA0 size:0x3CC mapped:0x80667F34
