@@ -111,6 +111,54 @@ void fn_2_53F88(void *arg0);
 void fn_2_54120(void);
 void fn_2_53DF8(void *arg0);
 void fn_2_4E858(void *arg0);
+void fn_2_6AF80(int a, int b);
+void fn_2_1C41C(void);
+int fn_2_684D0(int a);
+void fn_2_68654(int a, int b);
+void fn_2_68638(int a, int b);
+int fn_2_6AFD4(int a);
+int fn_2_68690(int a);
+void fn_2_40B90(void);
+void fn_2_1B7B4(void);
+void fn_2_4D194(void);
+void fn_2_4D67C(void);
+void fn_2_4C9C4(void);
+void fn_2_4CEE0(void);
+void fn_2_4DEE8(void);
+void fn_2_4E1C0(void);
+void fn_2_42EB0(void);
+extern u8 fn_80062794(s32 arg0);
+void unknownSettingTeamValues(void);
+void changeScreenVariables(u16 screen);
+void currentScreenFunctionChooser(void);
+extern GXColor lbl_2_data_107C8;
+extern void GXSetCopyClear(GXColor clearColor, u32 clearZ);
+extern u8 lbl_2_data_3CE0[];
+extern u8 lbl_8037169C[];
+extern u8 lbl_800EFBA4[];
+void fn_2_515DC(u8 arg0);
+void fn_2_54474(void);
+void fn_2_2469C(void);
+void fn_2_24650(void);
+void fn_2_246E0(void);
+void fn_2_1B314(void);
+void fn_2_1B1BC(void);
+void playStream(u8 streamId);
+void changeScene(u8 scene, u16 arg1);
+void challenge_setTransitionScreenCharacterPortrait(u8 scene, s8 charID);
+void fn_2_4358C(void);
+void fn_2_42BE8(void);
+void fn_2_432EC(void);
+void fn_2_4B1AC(void);
+void fn_2_4AEE4(void);
+void fn_2_4ACF8(void);
+void fn_2_422FC(int arg0);
+void fn_2_42388(void);
+void fn_2_38538(void);
+void fn_2_1C490(void);
+int fn_2_686B0(int arg0);
+int fn_2_45938(void);
+void sndFXStartEx(int fid, int vol, int pan, int studio);
 void fn_2_46D34(s32 delta);
 void fn_2_683EC(void);
 void fn_2_68308(void);
@@ -122,6 +170,17 @@ void fn_2_3F66C(void);
 void fn_2_1CF94(void);
 void fn_2_1C860(void);
 #define SCENE_MODE (*(s16 *)&lbl_2_bss_1A823C[0x30])
+#define WORK_U8(off) (lbl_2_bss_1A824C[0x190000 + (off)])
+#define WORK_S16(off) (*(s16 *)&lbl_2_bss_1A824C[0x190000 + (off)])
+#define WORK_S32(off) (*(s32 *)&lbl_2_bss_1A824C[0x190000 + (off)])
+#define PAD_PORT ((s8)WORK_U8(0x7863))
+#define PAD_PTR() ((u8 *)&AtBat_ButtonInput1 + PAD_PORT * 32)
+#define PAD_RAW() (*(u16 *)PAD_PTR())
+#define PAD_NEW() (*(u16 *)(PAD_PTR() + 2))
+#define PAD_HELD() (*(u16 *)(PAD_PTR() + 4))
+#define PAD_STICK_Y() (*(s8 *)(PAD_PTR() + 0x13))
+#define ITEM_STATE (*(s8 *)((u8 *)item + 0x28))
+
 extern u8 *lbl_2_bss_1A823C;
 extern u8 lbl_2_data_2EA4[];
 extern s16 lbl_2_data_3ED4[];
@@ -6853,6 +6912,7 @@ void fn_2_24724(void) {
     return;
 }
 
+#pragma dont_inline on
 // .text:0x000246E0 size:0x44 mapped:0x80663774
 void fn_2_246E0(void) {
     DrawingSceneStruct *item = insertGraphicDrawingFunction(fn_2_24488, 2);
@@ -6874,6 +6934,8 @@ void fn_2_24650(void) {
     *(s16 *)((u8 *)item + 0x1E) = 0;
     fn_2_54234(lbl_2_data_104EC, 2);
 }
+
+#pragma dont_inline reset
 
 // .text:0x0002460C size:0x44 mapped:0x806636A0
 void fn_2_2460C(void) {
@@ -7019,8 +7081,577 @@ void fn_2_2416C(void) {
 }
 
 // .text:0x00020D08 size:0x3464 mapped:0x8065FD9C
+#define SCENE_STATE (*(s16 *)&lbl_2_bss_1A823C[0x32])
+#define NEW_CHILD(func)                                           \
+    {                                                             \
+        DrawingSceneStruct *child = insertGraphicDrawingFunction(func, 2); \
+        *(s8 *)((u8 *)child + 0x28) = 0;                          \
+        item->state = 0;                                          \
+    }
+#define CHALLENGE_REC(idx, off) CHALLENGE_BYTE((idx) * 10 + (off))
+#define PORTRAIT_OR_SCENE(captainOffset, flagOffset)                                               \
+    if (CHALLENGE_BYTE(flagOffset) == 1) {                                                         \
+        changeScene(3, 6);                                                                         \
+    } else {                                                                                       \
+        challenge_setTransitionScreenCharacterPortrait(0xC, (s8)lbl_2_data_3CE0[CHALLENGE_BYTE(captainOffset)]); \
+        WORK_S16(0x76F2) = 0x78;                                                                   \
+    }
+
 void fn_2_20D08(void) {
-    return;
+    DrawingSceneStruct *item = currentDrawingItem;
+    WORK_U8(0x78FB) = 0;
+    switch (SCENE_STATE) {
+    case 0:
+        if ((s8)CHALLENGE_BYTE(0x44F4) == 0) {
+            SCENE_STATE = 1;
+            break;
+        }
+        fn_2_515DC(4);
+        lbl_2_bss_1A8234[0x160000 + 0x2992] = 0;
+        lbl_2_bss_1A8230[0x30000 + 0x2A86] = 0;
+        fn_2_54474();
+        fn_2_2469C();
+        fn_2_24650();
+        WORK_U8(0x7864) = 1;
+        SCENE_STATE = 0x65;
+        break;
+    case 1: {
+        DrawingSceneStruct *child;
+        WORK_S16(0x7746) = 7;
+        child = insertGraphicDrawingFunction(fn_2_1B314, 2);
+        *(s8 *)((u8 *)child + 0x28) = 0;
+        GXSetCopyClear(lbl_2_data_107C8, 0xFFFFFF);
+        item->state = 0;
+        SCENE_STATE = 2;
+        break;
+    }
+    case 2:
+        if (item->state == 1) {
+            SCENE_STATE = 3;
+        }
+        break;
+    case 3:
+        NEW_CHILD(fn_2_1B1BC)
+        SCENE_STATE = 4;
+        break;
+    case 4:
+        if (item->state == 1) {
+            SCENE_STATE = 5;
+        }
+        break;
+    case 5:
+        fn_2_515DC(4);
+        lbl_2_bss_1A8234[0x160000 + 0x2992] = 0;
+        lbl_2_bss_1A8230[0x30000 + 0x2A86] = 0;
+        fn_2_54474();
+        fn_2_246E0();
+        fn_2_24800();
+        SCENE_STATE = 7;
+        break;
+    case 7:
+        playStream(0xA);
+        SCENE_STATE = 0xB;
+        break;
+    case 11:
+        GXSetCopyClear(lbl_2_data_107C8, 0xFFFFFF);
+        switch (SCENE_MODE) {
+        case 0:
+        case 1:
+        case 2:
+        case 7:
+        case 8:
+            changeScene(1, 6);
+            break;
+        case 3:
+            if (CHALLENGE_S8(0x4443) == 1) {
+                changeScene(1, 6);
+            } else {
+                challenge_setTransitionScreenCharacterPortrait(0xA, (s8)lbl_2_data_3CE0[CHALLENGE_BYTE(0x441E)]);
+            }
+            break;
+        case 4:
+            if (CHALLENGE_S8(0x443E) == 1) {
+                changeScene(1, 6);
+            } else {
+                challenge_setTransitionScreenCharacterPortrait(0xA, (s8)lbl_2_data_3CE0[CHALLENGE_BYTE(0x441C)]);
+            }
+            changeScene(1, 6);
+            break;
+        case 5:
+            if (CHALLENGE_S8(0x443C) == 1) {
+                changeScene(1, 6);
+            } else {
+                challenge_setTransitionScreenCharacterPortrait(0xA, (s8)lbl_2_data_3CE0[CHALLENGE_BYTE(0x441C)]);
+            }
+            break;
+        case 6:
+            changeScene(1, 6);
+            break;
+        default:
+            changeScene(1, 6);
+            break;
+        }
+        lbl_2_bss_1A8234[0x160000 + 0x264B] = 1;
+        lbl_2_bss_1A8234[0x160000 + 0x2657] = 1;
+        lbl_2_bss_1A8234[0x160000 + 0x2659] = 1;
+        lbl_2_bss_1A8234[0x160000 + 0x265A] = 1;
+        lbl_2_bss_1A8234[0x160000 + 0x265B] = 1;
+        lbl_2_bss_1A8234[0x160000 + 0x2676] = 1;
+        lbl_2_bss_1A8234[0x160000 + 0x2677] = 1;
+        lbl_2_bss_1A8234[0x160000 + 0x2678] = 1;
+        lbl_2_bss_1A8234[0x160000 + 0x265F] = 1;
+        lbl_2_bss_1A8234[0x160000 + 0x2663] = 1;
+        lbl_2_bss_1A8234[0x160000 + 0x268A] = 1;
+        SCENE_STATE = 0xC;
+        break;
+    case 12:
+        if (lbl_8037169C[0x12] != 0) {
+            switch (SCENE_MODE) {
+            case 0:
+                if (CHALLENGE_BYTE(0x4505) == 0) {
+                    CHALLENGE_BYTE(0x4505) = 1;
+                    SCENE_STATE = 0xD;
+                } else {
+                    SCENE_STATE = 0x12;
+                }
+                break;
+            case 1:
+            case 2:
+                SCENE_STATE = 0x12;
+                break;
+            case 3:
+                fn_2_4358C();
+                fn_2_42BE8();
+                fn_2_432EC();
+                SCENE_STATE = 0x34;
+                break;
+            case 4:
+                fn_2_4B1AC();
+                fn_2_4358C();
+                fn_2_42BE8();
+                fn_2_432EC();
+                SCENE_STATE = 0x36;
+                break;
+            case 5:
+                fn_2_4AEE4();
+                fn_2_4358C();
+                SCENE_STATE = 0x38;
+                fn_2_42BE8();
+                fn_2_432EC();
+                break;
+            case 6:
+                fn_2_4ACF8();
+                fn_2_4358C();
+                SCENE_STATE = 0x3A;
+                fn_2_42BE8();
+                fn_2_432EC();
+                break;
+            case 7:
+            case 8:
+                SCENE_STATE = 0x12;
+                break;
+            }
+        }
+        break;
+    case 13:
+        fn_2_422FC(0x33);
+        NEW_CHILD(fn_2_42388)
+        SCENE_STATE = 0xE;
+        break;
+    case 14:
+        if (item->state == 1) {
+            if (WORK_U8(0x783F) == 1) {
+                WORK_U8(0x783F) = 0;
+                SCENE_STATE = 0x10;
+            } else {
+                SCENE_STATE = 0xF;
+            }
+        } else {
+            if (PAD_NEW() & INPUT_BUTTON_START) {
+                if (WORK_U8(0x72B9) == 1) {
+                    WORK_U8(0x783F) = 1;
+                }
+            }
+        }
+        break;
+    case 15:
+        SCENE_STATE = 0x12;
+        break;
+    case 16:
+        lbl_2_bss_1A8234[0x160000 + 0x2842] = 1;
+        lbl_2_bss_1A8234[0x160000 + 0x2871] = 1;
+        lbl_2_bss_1A8234[0x160000 + 0x2872] = 1;
+        NEW_CHILD(fn_2_38538)
+        SCENE_STATE = 0x11;
+        break;
+    case 17:
+        if (item->state == 1) {
+            SCENE_STATE = 0x12;
+        }
+        break;
+    case 18:
+    state18: {
+        int input;
+        int sel;
+        CHALLENGE_BYTE(0x44F3) = 0;
+        if (WORK_U8(0x789E) == 1) {
+            fn_2_1C490();
+            WORK_U8(0x789E) = 0;
+            SCENE_STATE = 0x1E;
+            break;
+        }
+        if (fn_2_686B0(0) == 1) {
+            SCENE_STATE = 0x20;
+            break;
+        }
+        input = fn_2_20074();
+        sel = fn_2_201E4(CHALLENGE_S16(0x16C2), input);
+        if (input == -1) {
+            WORK_U8(0x78FB) = 1;
+        }
+        if (sel != -1 && (CHALLENGE_REC(sel, 0x40F2) == 7 || CHALLENGE_REC(sel, 0x40F2) == 8) &&
+            CHALLENGE_BYTE(0x442A) == 1) {
+            CHALLENGE_S16(0x16C0) = sel;
+            fn_2_1C490();
+            SCENE_STATE = 0x1C;
+        } else if (sel != -1 && CHALLENGE_REC(sel, 0x40F1) != 1 && CHALLENGE_REC(sel, 0x40F4) == 0 &&
+                   CHALLENGE_REC(sel, 0x40F2) != 7 && CHALLENGE_REC(sel, 0x40F2) != 8) {
+            CHALLENGE_S16(0x16C0) = sel;
+            CHALLENGE_BYTE(0x4448) = input;
+            CHALLENGE_S16(0x16BE) = CHALLENGE_S16(0x16C2);
+            WORK_U8(0x783D) = 0;
+            fn_2_72054(0, 2);
+            fn_2_1C490();
+            SCENE_STATE = 0x14;
+            break;
+        } else {
+            if (PAD_RAW() & (INPUT_BUTTON_UP | INPUT_BUTTON_DOWN | INPUT_BUTTON_LEFT | INPUT_BUTTON_RIGHT)) {
+                WORK_U8(0x78FB) = 1;
+            }
+            CHALLENGE_S8(0x4448) = -1;
+        }
+        if (PAD_NEW() & INPUT_BUTTON_A) {
+            int recIdx = CHALLENGE_S16(0x16C2);
+            if (CHALLENGE_REC(recIdx, 0x40F1) == 0 && CHALLENGE_REC(recIdx, 0x40F2) == 0 &&
+                CHALLENGE_REC(recIdx, 0x40F3) != CHALLENGE_BYTE(0x441C) && fn_2_45938() == 1) {
+                CHALLENGE_BYTE(0x44EF) = 0;
+                CHALLENGE_BYTE(0x44F3) = 1;
+                SCENE_STATE = 0x17;
+                break;
+            }
+            recIdx = CHALLENGE_S16(0x16C2);
+            if (CHALLENGE_REC(recIdx, 0x40F1) == 0 && CHALLENGE_REC(recIdx, 0x40F2) == 0 &&
+                CHALLENGE_REC(recIdx, 0x40F3) == CHALLENGE_BYTE(0x441C) && CHALLENGE_BYTE(0x441C) == 5 &&
+                CHALLENGE_BYTE(0x4422) >= 5) {
+                CHALLENGE_BYTE(0x44EF) = 1;
+                CHALLENGE_BYTE(0x44F3) = 1;
+                SCENE_STATE = 0x17;
+                break;
+            }
+            if (CHALLENGE_REC(recIdx, 0x40F1) == 0 && CHALLENGE_REC(recIdx, 0x40F2) == 0 &&
+                CHALLENGE_REC(recIdx, 0x40F3) != CHALLENGE_BYTE(0x441C) && fn_2_45938() == 0) {
+                sndFXStartEx(0x1BA, lbl_800EFBA4[3], 0x3F, 0);
+                break;
+            }
+            if (CHALLENGE_REC(recIdx, 0x40F1) == 0 && CHALLENGE_REC(recIdx, 0x40F2) == 4 &&
+                CHALLENGE_REC(recIdx, 0x40F3) != CHALLENGE_BYTE(0x441C)) {
+                CHALLENGE_BYTE(0x44EF) = 0;
+                CHALLENGE_BYTE(0x44F3) = 1;
+                SCENE_STATE = 0x2D;
+                break;
+            }
+            if (CHALLENGE_REC(recIdx, 0x40F1) == 0 && CHALLENGE_REC(recIdx, 0x40F2) == 6) {
+                SCENE_STATE = 0x60;
+                CHALLENGE_BYTE(0x44F3) = 1;
+                break;
+            }
+        }
+        {
+            int r = fn_2_684D0(0);
+            if (r >= 2 && r <= 6 && (PAD_NEW() & INPUT_BUTTON_A)) {
+                fn_2_68654(0, 1);
+                fn_2_68638(0, r);
+                CHALLENGE_BYTE(0x44F3) = 1;
+                SCENE_STATE = 0x26;
+                goto state38;
+            }
+        }
+        {
+            u16 pad = PAD_NEW();
+            if (pad & INPUT_BUTTON_START) {
+                CHALLENGE_BYTE(0x44F2) = 3;
+                WORK_S16(0x76D8) = 0;
+                item->state = 0;
+                *(s16 *)&lbl_2_bss_1A8234[0x160000 + 0x2600] = 0x10;
+                lbl_2_bss_1A8234[0x160000 + 0x2660] = 1;
+                sndFXStartEx(0x1BF, lbl_800EFBA4[8], 0x3F, 0);
+                CHALLENGE_BYTE(0x44F3) = 1;
+                SCENE_STATE = 0x40;
+            } else if (pad & INPUT_TRIGGER_R) {
+                CHALLENGE_BYTE(0x44F3) = 1;
+                SCENE_STATE = 0x5A;
+            }
+        }
+        break;
+    }
+    case 19:
+    state19:
+        CHALLENGE_S16(0x16BE) = CHALLENGE_S16(0x16C2);
+        WORK_U8(0x783D) = 0;
+        fn_2_72054(0, 2);
+        SCENE_STATE = 0x14;
+        break;
+    case 20:
+        if (fn_2_686B0(0) == 1) {
+            fn_2_6AF80(0, 0);
+            fn_2_1C41C();
+            WORK_S16(0x76F2) = 10;
+            SCENE_STATE = 0x20;
+            break;
+        }
+        {
+            int r = fn_2_684D0(0);
+            if (r >= 2 && r <= 6 && (PAD_NEW() & INPUT_BUTTON_A)) {
+                fn_2_68654(0, 1);
+                fn_2_68638(0, r);
+                CHALLENGE_BYTE(0x44F3) = 1;
+                fn_2_6AF80(0, 0);
+                fn_2_1C41C();
+                SCENE_STATE = 0x26;
+                goto state38;
+            }
+        }
+        if (fn_2_6AFD4(0) == 1) {
+            fn_2_6AF80(0, 0);
+            if (CHALLENGE_REC(CHALLENGE_S16(0x16C2), 0x40F6) == 0) {
+                fn_2_1C41C();
+                SCENE_STATE = 0x12;
+                goto state18;
+            }
+            CHALLENGE_S16(0x16C0) = fn_2_201E4(CHALLENGE_S16(0x16C2), (s8)CHALLENGE_BYTE(0x4448));
+            SCENE_STATE = 0x13;
+            goto state19;
+        }
+        break;
+    case 28:
+        fn_2_422FC(0x34);
+        NEW_CHILD(fn_2_42388)
+        SCENE_STATE = 0x1D;
+        break;
+    case 29:
+        if (item->state == 1) {
+            fn_2_1C41C();
+            SCENE_STATE = 0x12;
+        }
+        break;
+    case 30:
+        fn_2_422FC(0x36);
+        NEW_CHILD(fn_2_42388)
+        SCENE_STATE = 0x1F;
+        break;
+    case 31:
+        if (item->state == 1) {
+            fn_2_1C41C();
+            fn_2_42EB0();
+            fn_2_432EC();
+            SCENE_STATE = 0x12;
+        }
+        break;
+    case 21:
+        fn_2_422FC(0x13);
+        NEW_CHILD(fn_2_42388)
+        SCENE_STATE = 0x16;
+        break;
+    case 22: {
+        s16 v = item->state;
+        if (v != 0 && WORK_S16(0x72B0) == 0) {
+            SCENE_STATE = 0x17;
+        } else if (v != 0 && WORK_S16(0x72B0) == 1) {
+            SCENE_STATE = 0x12;
+        }
+        break;
+    }
+    case 23:
+        fn_2_4E1C0();
+        fn_2_422FC(2);
+        NEW_CHILD(fn_2_42388)
+        SCENE_STATE = 0x18;
+        break;
+    case 24: {
+        s16 v = item->state;
+        if (v == 1 && WORK_S16(0x76DE) == 0) {
+            PORTRAIT_OR_SCENE(0x441E, 0x4443)
+            WORK_S32(0x76A8) = fn_80062890(0xB);
+            SCENE_STATE = 0x19;
+        } else if (v == 1 && WORK_S16(0x76DE) == 1) {
+            SCENE_STATE = 0x12;
+        }
+        break;
+    }
+    case 25:
+        if (!(u8)fn_80062794(WORK_S32(0x76A8))) {
+            SCENE_STATE = 0x1A;
+        }
+        break;
+    case 26:
+        if (CHALLENGE_S8(0x4443) == 1) {
+            if (lbl_8037169C[0x13] != 0) {
+                NEW_CHILD(fn_2_40B90)
+                SCENE_STATE = 0x1B;
+            }
+        } else if (WORK_S16(0x76F2)-- == 0) {
+            NEW_CHILD(fn_2_40B90)
+            SCENE_STATE = 0x1B;
+        }
+        break;
+    case 27:
+        if (item->state == 1) {
+            if (CHALLENGE_S8(0x4443) == 1) {
+                currentDrawingItem->func = fn_2_1B7B4;
+                *(s16 *)((u8 *)&inningSetting + 0x58) = 3;
+                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+            } else {
+                fn_2_4D194();
+                currentDrawingItem->func = currentScreenFunctionChooser;
+                changeScreenVariables(0xA);
+                *(s16 *)((u8 *)&inningSetting + 0x58) = 3;
+                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+            }
+        }
+        break;
+    case 32:
+        if (WORK_S16(0x76F2)-- == 0) {
+            SCENE_STATE = 0x21;
+        }
+        break;
+    case 33:
+        CHALLENGE_BYTE(0x4430) = 0;
+        fn_2_4DEE8();
+        unknownSettingTeamValues();
+        fn_2_422FC(3);
+        NEW_CHILD(fn_2_42388)
+        SCENE_STATE = 0x22;
+        break;
+    case 34:
+        if (item->state == 1) {
+            WORK_S32(0x76A8) = fn_80062890(0xB);
+            SCENE_STATE = 0x23;
+        }
+        break;
+    case 35:
+        if (!(u8)fn_80062794(WORK_S32(0x76A8))) {
+            PORTRAIT_OR_SCENE(0x441C, 0x443E)
+            SCENE_STATE = 0x24;
+        }
+        break;
+    case 36:
+        if (CHALLENGE_S8(0x443E) == 1) {
+            if (lbl_8037169C[0x13] != 0) {
+                NEW_CHILD(fn_2_40B90)
+                SCENE_STATE = 0x25;
+            }
+        } else if (WORK_S16(0x76F2)-- == 0) {
+            NEW_CHILD(fn_2_40B90)
+            SCENE_STATE = 0x25;
+        }
+        break;
+    case 37:
+        if (item->state == 1) {
+            if (CHALLENGE_S8(0x443E) == 1) {
+                currentDrawingItem->func = fn_2_1B7B4;
+                *(s16 *)((u8 *)&inningSetting + 0x58) = 4;
+                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+            } else {
+                fn_2_4CEE0();
+                currentDrawingItem->func = currentScreenFunctionChooser;
+                changeScreenVariables(4);
+                *(s16 *)((u8 *)&inningSetting + 0x58) = 4;
+                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+            }
+        }
+        break;
+    case 38:
+    state38: {
+        int k = fn_2_68690(0) - 2;
+        switch (k) {
+        case 0:
+            fn_2_422FC((s8)CHALLENGE_BYTE(0x44F8 + k) + 0x14);
+            break;
+        case 1:
+            fn_2_422FC((s8)CHALLENGE_BYTE(0x44F8 + k) + 0x18);
+            break;
+        case 2:
+            fn_2_422FC((s8)CHALLENGE_BYTE(0x44F8 + k) + 0x1C);
+            break;
+        case 3:
+            fn_2_422FC((s8)CHALLENGE_BYTE(0x44F8 + k) + 0x20);
+            break;
+        case 4:
+            fn_2_422FC((s8)CHALLENGE_BYTE(0x44F8 + k) + 0x24);
+            break;
+        }
+        NEW_CHILD(fn_2_42388)
+        SCENE_STATE = 0x27;
+        break;
+    }
+    case 39: {
+        s16 v = item->state;
+        if (v == 1 && WORK_S16(0x76DE) == 0) {
+            SCENE_STATE = 0x28;
+        } else if (v == 1 && WORK_S16(0x76DE) == 1) {
+            fn_2_68654(0, 0);
+            SCENE_STATE = 0x12;
+        }
+        break;
+    }
+    case 40:
+        fn_2_4D67C();
+        fn_2_422FC(4);
+        NEW_CHILD(fn_2_42388)
+        SCENE_STATE = 0x29;
+        break;
+    case 41:
+        if (item->state == 1) {
+            WORK_S32(0x76A8) = fn_80062890(6);
+            SCENE_STATE = 0x2B;
+        }
+        break;
+    case 43:
+        if (!(u8)fn_80062794(WORK_S32(0x76A8))) {
+            PORTRAIT_OR_SCENE(0x441C, 0x443C)
+            SCENE_STATE = 0x2A;
+        }
+        break;
+    case 42:
+        if (CHALLENGE_S8(0x443C) == 1) {
+            if (lbl_8037169C[0x13] != 0) {
+                NEW_CHILD(fn_2_40B90)
+                SCENE_STATE = 0x2C;
+            }
+        } else if (WORK_S16(0x76F2)-- == 0) {
+            NEW_CHILD(fn_2_40B90)
+            SCENE_STATE = 0x2C;
+        }
+        break;
+    case 44:
+        if (item->state == 1) {
+            fn_2_68654(0, 0);
+            if (CHALLENGE_S8(0x443C) == 1) {
+                currentDrawingItem->func = fn_2_1B7B4;
+                *(s16 *)((u8 *)&inningSetting + 0x58) = 5;
+                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+            } else {
+                fn_2_4C9C4();
+                currentDrawingItem->func = currentScreenFunctionChooser;
+                changeScreenVariables(4);
+                *(s16 *)((u8 *)&inningSetting + 0x58) = 5;
+                *(s16 *)((u8 *)&inningSetting + 0x5A) = 0;
+            }
+        }
+        break;
+    default:
+        break;
+    }
 }
 
 // .text:0x00020CB0 size:0x58 mapped:0x8065FD44
@@ -7413,17 +8044,6 @@ void fn_2_1FF10(void) {
 void fn_2_1FF0C(void) {
     return;
 }
-
-#define WORK_U8(off) (lbl_2_bss_1A824C[0x190000 + (off)])
-#define WORK_S16(off) (*(s16 *)&lbl_2_bss_1A824C[0x190000 + (off)])
-#define WORK_S32(off) (*(s32 *)&lbl_2_bss_1A824C[0x190000 + (off)])
-#define PAD_PORT ((s8)WORK_U8(0x7863))
-#define PAD_PTR() ((u8 *)&AtBat_ButtonInput1 + PAD_PORT * 32)
-#define PAD_RAW() (*(u16 *)PAD_PTR())
-#define PAD_NEW() (*(u16 *)(PAD_PTR() + 2))
-#define PAD_HELD() (*(u16 *)(PAD_PTR() + 4))
-#define PAD_STICK_Y() (*(s8 *)(PAD_PTR() + 0x13))
-#define ITEM_STATE (*(s8 *)((u8 *)item + 0x28))
 
 #define MENU_NAV(field, count)                                          \
     {                                                                   \
