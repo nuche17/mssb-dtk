@@ -13,6 +13,19 @@
 #define SCENE_RECORD(scene, rec) \
     (graphicsRelatedArray[*(u16 *)((u8 *)(scene) + 0x14) + *(s16 *)((u8 *)(rec) + 0xE)].object)
 
+#define SET_DIGIT(digit, value, place)   \
+    switch (place) {                     \
+    case 0:                              \
+        (digit) = (value) / 100;         \
+        break;                           \
+    case 1:                              \
+        (digit) = (value) / 10 % 10;     \
+        break;                           \
+    case 2:                              \
+        (digit) = (value) % 10;          \
+        break;                           \
+    }
+
 static inline void setRecordFrame(void *scene, void *rec, u32 frame) {
     ((UIRecord *)SCENE_RECORD(scene, rec))->frame = frame;
 }
@@ -66,6 +79,24 @@ extern u8 *lbl_2_bss_1A8230;
 extern u8 lbl_2_data_1048C[0x60];
 extern s16 lbl_2_data_2E44[4][4];
 extern int rand(void);
+extern void *memcpy(void *dst, const void *src, u32 n);
+extern void fn_2_6AE08(void);
+extern void fn_2_90538(void);
+extern void fn_2_46ADC(void);
+extern void fn_2_467FC(void);
+extern void fn_2_45978(void);
+extern void fn_2_45810(void);
+extern void fn_2_42EB0(void);
+extern void fn_2_432EC(void);
+extern u8 inMemRoster[];
+extern u8 lbl_2_data_2E40[];
+extern s16 lbl_2_data_3EC8[];
+extern u8 lbl_2_data_3F60[];
+extern u8 lbl_2_data_3F98[];
+
+#define CHALLENGE_BYTE(offset) (((u8 *)lbl_2_bss_1A8248)[offset])
+#define CHALLENGE_S8(offset) (((s8 *)lbl_2_bss_1A8248)[offset])
+#define CHALLENGE_S16(offset) (*(s16 *)((u8 *)lbl_2_bss_1A8248 + (offset)))
 void fn_2_53F04(void *arg0);
 void fn_2_5400C(void);
 void fn_2_53CEC(void *arg0);
@@ -231,12 +262,219 @@ void fn_2_2025C(void) {
 
 // .text:0x00020328 size:0x4D4 mapped:0x8065F3BC
 void fn_2_20328(void) {
-    return;
+    int captain = 0;
+    int difficulty;
+    int i;
+
+    switch (Static_Stats_Tables.captainSelectedID[0]) {
+    case CHAR_ID_MARIO:
+        break;
+    case CHAR_ID_PEACH:
+        captain = CHALLENGE_CAPTAIN_PEACH;
+        break;
+    case CHAR_ID_WARIO:
+        captain = CHALLENGE_CAPTAIN_WARIO;
+        break;
+    case CHAR_ID_DK:
+        captain = CHALLENGE_CAPTAIN_DK;
+        break;
+    case CHAR_ID_YOSHI:
+        captain = CHALLENGE_CAPTAIN_YOSHI;
+        break;
+    case CHAR_ID_BOWSER:
+        captain = CHALLENGE_CAPTAIN_BOWSER;
+        break;
+    }
+    lbl_2_bss_1A8248->captain = captain;
+    difficulty = Static_Stats_Tables._4711[0];
+    CHALLENGE_BYTE(0x4416) = difficulty;
+    lbl_2_bss_1A8248->difficulty = difficulty;
+    lbl_2_bss_1A8248->captainCharID = challengeCaptainCharIDs[lbl_2_bss_1A8248->captain];
+    memcpy(lbl_2_bss_1A8248->_40EE, lbl_2_data_3F98 + lbl_2_bss_1A8248->captain * 0x1FE, 0x1FE);
+    memcpy(lbl_2_bss_1A8248->_440C, lbl_2_data_3F60 + lbl_2_bss_1A8248->captain * 9, 9);
+    fn_2_6AE08();
+    lbl_2_bss_1A8248->_16C2 = lbl_2_data_3EC8[lbl_2_bss_1A8248->captain];
+    lbl_2_bss_1A8248->_16C0 = lbl_2_data_3EC8[lbl_2_bss_1A8248->captain];
+    CHALLENGE_S16(0x16BE) = lbl_2_data_3EC8[lbl_2_bss_1A8248->captain];
+    CHALLENGE_S16(0x1798) = -1;
+    CHALLENGE_S16(0x1796) = -1;
+    fn_2_90538();
+    CHALLENGE_BYTE(0x4418) = lbl_2_data_2E40[lbl_2_bss_1A8248->difficulty];
+    CHALLENGE_BYTE(0x4419) = lbl_2_data_2E40[lbl_2_bss_1A8248->difficulty];
+    CHALLENGE_S16(0x43BC) = 0;
+    CHALLENGE_S16(0x43BE) = 0;
+    lbl_2_bss_1A8248->stage = 0;
+    CHALLENGE_BYTE(0x4423) = 0;
+    CHALLENGE_BYTE(0x4424) = 0;
+    CHALLENGE_BYTE(0x4426) = 0;
+    CHALLENGE_BYTE(0x4427) = 0;
+    CHALLENGE_BYTE(0x4428) = 0;
+    CHALLENGE_BYTE(0x4449) = 0;
+    if (lbl_2_bss_1A8248->captain == CHALLENGE_CAPTAIN_BOWSER) {
+        CHALLENGE_BYTE(0x4439) = 0;
+    } else {
+        CHALLENGE_BYTE(0x4439) = 1;
+    }
+    CHALLENGE_BYTE(0x441A) = 0;
+    CHALLENGE_BYTE(0x444A) = 0;
+    CHALLENGE_BYTE(0x4446) = 0;
+    CHALLENGE_BYTE(0x4447) = 0;
+    CHALLENGE_BYTE(0x44EF) = 0;
+    CHALLENGE_BYTE(0x44F0) = 0;
+    CHALLENGE_BYTE(0x44F4) = 0;
+    CHALLENGE_BYTE(0x442A) = 0;
+    CHALLENGE_S8(0x444C) = -1;
+    CHALLENGE_S8(0x444B) = -1;
+    for (i = 0; i < 20; i += 5) {
+        CHALLENGE_BYTE(0x43C2 + i) = CHALLENGE_BYTE(0x15F1 + i);
+        CHALLENGE_BYTE(0x43C3 + i) = CHALLENGE_BYTE(0x15F2 + i);
+        CHALLENGE_BYTE(0x43C4 + i) = CHALLENGE_BYTE(0x15F3 + i);
+        CHALLENGE_BYTE(0x43C5 + i) = CHALLENGE_BYTE(0x15F4 + i);
+        CHALLENGE_BYTE(0x43C6 + i) = CHALLENGE_BYTE(0x15F5 + i);
+    }
+    CHALLENGE_BYTE(0x442B) = 0;
+    CHALLENGE_BYTE(0x442F) = 0;
+    CHALLENGE_BYTE(0x442C) = 0;
+    CHALLENGE_BYTE(0x442D) = 0;
+    CHALLENGE_BYTE(0x442E) = 0;
+    CHALLENGE_BYTE(0x4438) = 0;
+    lbl_2_bss_1A8248->resumeSavedTeams = 1;
+    *(s32 *)&CHALLENGE_BYTE(0x42EC) = 0;
+    CHALLENGE_BYTE(0x4431) = 0;
+    CHALLENGE_BYTE(0x4432) = 0;
+    CHALLENGE_BYTE(0x4433) = 0;
+    CHALLENGE_BYTE(0x4434) = 0;
+    CHALLENGE_BYTE(0x4435) = 0;
+    fn_2_46ADC();
+    fn_2_45978();
+    for (i = 0; i < 9; i++) {
+        lbl_2_bss_1A8248->savedLineup[i].charID = *(s16 *)(inMemRoster + 0x24 + i * 0xA0);
+    }
+    CHALLENGE_BYTE(0x44F6) = 0;
+    CHALLENGE_BYTE(0x44F7) = 0;
+    fn_2_42EB0();
+    fn_2_432EC();
+    CHALLENGE_BYTE(0x44F8) = 3;
+    CHALLENGE_BYTE(0x44F9) = 3;
+    CHALLENGE_BYTE(0x44FA) = 3;
+    CHALLENGE_BYTE(0x44FB) = 3;
+    CHALLENGE_BYTE(0x44FC) = 3;
+    CHALLENGE_BYTE(0x44FD) = 3;
+    CHALLENGE_BYTE(0x44FE) = 0;
+    CHALLENGE_BYTE(0x44FF) = 0;
+    CHALLENGE_BYTE(0x4500) = 0;
+    CHALLENGE_BYTE(0x4501) = 0;
+    CHALLENGE_BYTE(0x4502) = 0;
+    CHALLENGE_BYTE(0x4503) = 0;
+    CHALLENGE_BYTE(0x4504) = 0;
+    CHALLENGE_BYTE(0x4505) = 0;
 }
 
 // .text:0x000207FC size:0x4B4 mapped:0x8065F890
 void fn_2_207FC(void) {
-    return;
+    int captain = 0;
+    int difficulty;
+    int i;
+
+    switch (Static_Stats_Tables.captainSelectedID[0]) {
+    case CHAR_ID_MARIO:
+        break;
+    case CHAR_ID_PEACH:
+        captain = CHALLENGE_CAPTAIN_PEACH;
+        break;
+    case CHAR_ID_WARIO:
+        captain = CHALLENGE_CAPTAIN_WARIO;
+        break;
+    case CHAR_ID_DK:
+        captain = CHALLENGE_CAPTAIN_DK;
+        break;
+    case CHAR_ID_YOSHI:
+        captain = CHALLENGE_CAPTAIN_YOSHI;
+        break;
+    case CHAR_ID_BOWSER:
+        captain = CHALLENGE_CAPTAIN_BOWSER;
+        break;
+    }
+    lbl_2_bss_1A8248->captain = captain;
+    difficulty = Static_Stats_Tables._4711[0];
+    CHALLENGE_BYTE(0x4416) = difficulty;
+    lbl_2_bss_1A8248->difficulty = difficulty;
+    lbl_2_bss_1A8248->captainCharID = challengeCaptainCharIDs[lbl_2_bss_1A8248->captain];
+    memcpy(lbl_2_bss_1A8248->_40EE, lbl_2_data_3F98 + lbl_2_bss_1A8248->captain * 0x1FE, 0x1FE);
+    memcpy(lbl_2_bss_1A8248->_440C, lbl_2_data_3F60 + lbl_2_bss_1A8248->captain * 9, 9);
+    fn_2_6AE08();
+    lbl_2_bss_1A8248->_16C2 = lbl_2_data_3EC8[lbl_2_bss_1A8248->captain];
+    lbl_2_bss_1A8248->_16C0 = lbl_2_data_3EC8[lbl_2_bss_1A8248->captain];
+    CHALLENGE_S16(0x16BE) = lbl_2_data_3EC8[lbl_2_bss_1A8248->captain];
+    CHALLENGE_S16(0x1798) = -1;
+    CHALLENGE_S16(0x1796) = -1;
+    fn_2_90538();
+    CHALLENGE_BYTE(0x4418) = lbl_2_data_2E40[0];
+    CHALLENGE_BYTE(0x4419) = lbl_2_data_2E40[0];
+    CHALLENGE_S16(0x43BC) = 0;
+    CHALLENGE_S16(0x43BE) = 0;
+    lbl_2_bss_1A8248->stage = 0;
+    CHALLENGE_BYTE(0x4423) = 0;
+    CHALLENGE_BYTE(0x4424) = 0;
+    CHALLENGE_BYTE(0x4425) = 0;
+    CHALLENGE_BYTE(0x4426) = 0;
+    CHALLENGE_BYTE(0x4427) = 0;
+    CHALLENGE_BYTE(0x4428) = 0;
+    CHALLENGE_BYTE(0x4449) = 0;
+    if (lbl_2_bss_1A8248->captain == CHALLENGE_CAPTAIN_BOWSER) {
+        CHALLENGE_BYTE(0x4439) = 0;
+    } else {
+        CHALLENGE_BYTE(0x4439) = 1;
+    }
+    CHALLENGE_BYTE(0x441A) = 0;
+    CHALLENGE_BYTE(0x444A) = 0;
+    CHALLENGE_BYTE(0x4446) = 0;
+    CHALLENGE_BYTE(0x4447) = 0;
+    CHALLENGE_BYTE(0x44EF) = 0;
+    CHALLENGE_BYTE(0x44F0) = 0;
+    CHALLENGE_BYTE(0x44F4) = 0;
+    CHALLENGE_BYTE(0x442A) = 0;
+    CHALLENGE_S8(0x444C) = -1;
+    CHALLENGE_S8(0x444B) = -1;
+    for (i = 0; i < 20; i++) {
+        lbl_2_bss_1A8248->_43C2[i] = 0;
+    }
+    CHALLENGE_BYTE(0x442B) = 0;
+    CHALLENGE_BYTE(0x442F) = 0;
+    CHALLENGE_BYTE(0x442C) = 0;
+    CHALLENGE_BYTE(0x442D) = 0;
+    CHALLENGE_BYTE(0x442E) = 0;
+    CHALLENGE_BYTE(0x4438) = 0;
+    lbl_2_bss_1A8248->resumeSavedTeams = 1;
+    *(s32 *)&CHALLENGE_BYTE(0x42EC) = 0;
+    CHALLENGE_BYTE(0x4431) = 0;
+    CHALLENGE_BYTE(0x4432) = 0;
+    CHALLENGE_BYTE(0x4433) = 0;
+    CHALLENGE_BYTE(0x4434) = 0;
+    CHALLENGE_BYTE(0x4435) = 0;
+    fn_2_46ADC();
+    fn_2_467FC();
+    fn_2_45978();
+    fn_2_45810();
+    for (i = 0; i < 9; i++) {
+        lbl_2_bss_1A8248->savedLineup[i].charID = *(s16 *)(inMemRoster + 0x24 + i * 0xA0);
+    }
+    CHALLENGE_BYTE(0x44F6) = 0;
+    CHALLENGE_BYTE(0x44F7) = 0;
+    CHALLENGE_BYTE(0x44F8) = 3;
+    CHALLENGE_BYTE(0x44F9) = 3;
+    CHALLENGE_BYTE(0x44FA) = 3;
+    CHALLENGE_BYTE(0x44FB) = 3;
+    CHALLENGE_BYTE(0x44FC) = 3;
+    CHALLENGE_BYTE(0x44FD) = 3;
+    CHALLENGE_BYTE(0x44FE) = 0;
+    CHALLENGE_BYTE(0x44FF) = 0;
+    CHALLENGE_BYTE(0x4500) = 0;
+    CHALLENGE_BYTE(0x4501) = 0;
+    CHALLENGE_BYTE(0x4502) = 0;
+    CHALLENGE_BYTE(0x4503) = 0;
+    CHALLENGE_BYTE(0x4504) = 0;
+    CHALLENGE_BYTE(0x4505) = 0;
 }
 
 // .text:0x00020CB0 size:0x58 mapped:0x8065FD44
@@ -4646,8 +4884,108 @@ void fn_2_2EBE4(void *arg0, void *arg1) {
 }
 
 // .text:0x0002EFCC size:0x578 mapped:0x8066E060
-void fn_2_2EFCC(void) {
-    return;
+void fn_2_2EFCC(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    int digit;
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    SET_DIGIT(digit, *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7736], *(s16 *)((u8 *)arg1 + 0xA));
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 4:
+    case 8:
+    case 19:
+    case 22:
+    case 31:
+    case 0x25:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->frame = 0;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7734] = CHALLENGE_S16(0x43BC);
+        *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7736] = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x773C] = CHALLENGE_S16(0x43BC);
+        SET_DIGIT(digit, *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7736], *(s16 *)((u8 *)arg1 + 0xA));
+        load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0xD, digit);
+        *state = 3;
+        break;
+    }
+    case 3: {
+        TextGraphicsObject *obj;
+        obj = SCENE_RECORD(arg0, arg1);
+        if ((((UIRecord *)obj)->frame >> 16) >= 0x15) {
+            obj = SCENE_RECORD(arg0, arg1);
+            ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+            *state = 0x25;
+        }
+        break;
+    }
+    case 0x11: {
+        if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7736] != *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x773C]) {
+            load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0xD, digit);
+            *state = 0x12;
+        } else {
+            *state = 0x25;
+        }
+        break;
+    }
+    case 0x12: {
+        *state = 0x25;
+        break;
+    }
+    case 0x14: {
+        if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7736] != *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x773C]) {
+            load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0xD, digit);
+            *state = 0x15;
+        } else {
+            *state = 0x25;
+        }
+        break;
+    }
+    case 0x15: {
+        *state = 0x25;
+        break;
+    }
+    case 0x1E:
+    case 0x21: {
+        SET_DIGIT(digit, CHALLENGE_S16(0x43BC), *(s16 *)((u8 *)arg1 + 0xA));
+        load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0xD, digit);
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        TextGraphicsObject *obj;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_BACKWARD;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        if ((((UIRecord *)obj)->frame >> 16) == 0) {
+            ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+            *state = 7;
+        }
+        break;
+    }
+    case 7: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        break;
+    }
+    }
 }
 
 // .text:0x0002F544 size:0x1CC mapped:0x8066E5D8
@@ -6396,8 +6734,113 @@ void fn_2_32F08(void *arg0, void *arg1) {
 }
 
 // .text:0x000331C8 size:0x44C mapped:0x8067225C
-void fn_2_331C8(void) {
-    return;
+void fn_2_331C8(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 4:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x76DE] == 0) {
+            setRecordFrame(arg0, arg1, 0);
+            obj = SCENE_RECORD(arg0, arg1);
+            ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        } else {
+            setRecordFrame(arg0, arg1, 0xF0000);
+            obj = SCENE_RECORD(arg0, arg1);
+            ((UIRecord *)obj)->playMode = UI_PLAY_BACKWARD;
+        }
+        *state = 3;
+        break;
+    }
+    case 3: {
+        TextGraphicsObject *obj;
+        if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x76DE] == 0) {
+            obj = SCENE_RECORD(arg0, arg1);
+            if ((((UIRecord *)obj)->frame >> 16) >= 5) {
+                ((UIRecord *)obj)->frame = 0x50000;
+                setRecordPlayMode(arg0, arg1, UI_PLAY_STOP);
+                *state = 0x25;
+            }
+        } else {
+            obj = SCENE_RECORD(arg0, arg1);
+            if ((((UIRecord *)obj)->frame >> 16) <= 0xA) {
+                ((UIRecord *)obj)->frame = 0xA0000;
+                setRecordPlayMode(arg0, arg1, UI_PLAY_STOP);
+                *state = 0x25;
+            }
+        }
+        break;
+    }
+    case 0x25: {
+        TextGraphicsObject *obj;
+        if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x76DE] == 0) {
+            obj = SCENE_RECORD(arg0, arg1);
+            if ((((UIRecord *)obj)->frame >> 16) <= 5) {
+                ((UIRecord *)obj)->frame = 0x50000;
+                ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+            } else {
+                ((UIRecord *)obj)->playMode = UI_PLAY_BACKWARD;
+            }
+        } else {
+            obj = SCENE_RECORD(arg0, arg1);
+            if ((((UIRecord *)obj)->frame >> 16) >= 0xA) {
+                ((UIRecord *)obj)->frame = 0xA0000;
+                ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+            } else {
+                ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+            }
+        }
+        break;
+    }
+    case 5: {
+        TextGraphicsObject *obj;
+        if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x76DE] == 0) {
+            obj = SCENE_RECORD(arg0, arg1);
+            ((UIRecord *)obj)->playMode = UI_PLAY_BACKWARD;
+        } else {
+            obj = SCENE_RECORD(arg0, arg1);
+            ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        }
+        *state = 6;
+        break;
+    }
+    case 6: {
+        TextGraphicsObject *obj;
+        if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x76DE] == 0) {
+            obj = SCENE_RECORD(arg0, arg1);
+            if ((((UIRecord *)obj)->frame >> 16) == 0 == 0) {
+                setRecordPlayMode(arg0, arg1, UI_PLAY_STOP);
+                *state = 7;
+            }
+        } else {
+            obj = SCENE_RECORD(arg0, arg1);
+            if ((((UIRecord *)obj)->frame >> 16) >= 0xF) {
+                setRecordPlayMode(arg0, arg1, UI_PLAY_STOP);
+                *state = 7;
+            }
+        }
+        break;
+    }
+    case 7: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        break;
+    }
+    }
 }
 
 // .text:0x00033614 size:0x10C mapped:0x806726A8
