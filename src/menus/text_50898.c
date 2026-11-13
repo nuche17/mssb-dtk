@@ -341,15 +341,17 @@ void fn_2_51358(void) {
 
 void fn_2_5135C(u8 *arg0, s32 idx) {
     s32 n;
-    u32 (*values)[2] = (u32 (*)[2])lbl_2_bss_55E8;
+    u32 *first = (u32 *)lbl_2_bss_55E8;
+    u32 *second = (u32 *)(lbl_2_bss_55E8 + 8);
+    u32 *third = (u32 *)(lbl_2_bss_55E8 + 0x10);
 
     n = *(u16 *)(arg0 + 0x10);
     if (n % lbl_2_data_1F3B0[idx] != 1) {
         return;
     }
-    values[1][idx] = lbl_2_data_1F3E0[idx];
-    values[0][idx] = lbl_2_data_1F3E8[idx];
-    values[2][idx] = *(u32 *)(STATE_BLOCK + 0x54AC + idx * 4);
+    second[idx] = lbl_2_data_1F3E0[idx];
+    first[idx] = lbl_2_data_1F3E8[idx];
+    third[idx] = *(u32 *)(STATE_BLOCK + 0x54AC + idx * 4);
 }
 
 void fn_2_513DC(void) {
