@@ -1,5 +1,6 @@
 #include "menus/text_50898.h"
 #include "static/menu_control.h"
+#include "Dolphin/pad.h"
 #include "text/text.h"
 #include "game/character_stats.h"
 #include "Unknown/File_0x800b0a14.h"
@@ -63,6 +64,9 @@ extern void *memcpy(void *dst, const void *src, u32 n);
 extern void *memset(void *dst, s32 val, u32 n);
 
 #define STATE_BLOCK (lbl_2_bss_1A824C + 0x190000)
+#define B33(off) (lbl_2_bss_33FBCC[off])
+#define B33_S8(off) (((s8 *)lbl_2_bss_33FBCC)[off])
+#define B33_U16(off) (*(u16 *)(lbl_2_bss_33FBCC + (off)))
 
 void fn_2_50898(u32 arg0) {
     s32 i;
@@ -614,99 +618,91 @@ void fn_2_51C58(void) {
     u16 buf[3];
     s32 state = *(s32 *)(menuCursors + 0x54);
     s32 idx = *(s32 *)(menuCursors + 0x50);
-    s32 t;
-    u8 *bss = lbl_2_bss_33FBCC;
 
     memset(buf, 0, 6);
     buf[0] = *(u16 *)(Static_Stats_Tables + 0x472C);
     buf[1] = *(u16 *)(Static_Stats_Tables + 0x472E);
     buf[2] = *(u16 *)(Static_Stats_Tables + 0x4730);
-    if (bss[0x21] != 0) {
+    if (B33(0x21) != 0) {
         buf[2] = 0;
         buf[1] = 0;
         buf[0] = 0;
     }
 
-    if (buf[1] & 0x100) {
-        if (state == 0) {
-            t = Static_Stats_Tables[0x4754];
-            bss[0x17] = 0x4A;
-            memset(lbl_80354768 + t * 0x4508 + 0xAF8, 0, 0xB10);
-            memcpy(g_Challenge, lbl_80354768 + t * 0x4508, 0x4508);
-            superstarUnlocked[0xF6] = (u8)idx;
-            bss[6] = 0;
-            *(s16 *)(bss + 2) = 2;
-            sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
-        } else if (state == 1) {
+    if (buf[1] & PAD_BUTTON_A) {
+        switch (state) {
+        case 0:
+            B33(0x17) = 0x4A;
+            memset(lbl_80354768 + Static_Stats_Tables[0x4754] * 0x4508 + 0xAF8, 0, 0xB10);
+            memcpy(g_Challenge, lbl_80354768 + Static_Stats_Tables[0x4754] * 0x4508, 0x4508);
+            superstarUnlocked[0xF6] = idx;
+            B33(6) = 0;
+            B33_U16(2) = 2;
+            break;
+        case 1:
             fn_80041150(2, Static_Stats_Tables[0x4754]);
-            bss[0x17] = 0x4A;
-            bss[0x22] = 0x52;
+            B33(0x17) = 0x4A;
+            B33(0x22) = 0x52;
             menuNumber[0x26] = 1;
             fn_2_5163C();
-            superstarUnlocked[0xF6] = (u8)idx;
-            bss[6] = 1;
-            bss[0xE] = 1;
+            superstarUnlocked[0xF6] = idx;
+            B33(6) = 1;
+            B33(0xE) = 1;
             lbl_2_bss_9E08 = 0xA;
-            sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
-        } else if (state == 2) {
-            t = Static_Stats_Tables[0x4754];
-            if (lbl_80354768[t * 0x4508 + 0x441B] != 0) {
+            break;
+        case 2:
+            if (lbl_80354768[Static_Stats_Tables[0x4754] * 0x4508 + 0x441B] != 0) {
                 fn_8004A34C(cardCheck, 0, 0x38, 0, 0);
             } else {
                 fn_8004A34C(cardCheck, 0, 0x37, 0, 0);
             }
-            superstarUnlocked[0xF6] = (u8)idx;
-            bss[6] = 0;
+            superstarUnlocked[0xF6] = idx;
+            B33(6) = 0;
             lbl_2_bss_9E08 = 0x10;
-            sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
-        } else if (state == 3) {
-            t = Static_Stats_Tables[0x4754];
-            bss[0xF] = (u8)t;
-            bss[0x15] = 3;
-            memcpy(g_Challenge, lbl_80354768 + t * 0x4508, 0x4508);
+            break;
+        case 3: {
+            B33(0xF) = Static_Stats_Tables[0x4754];
+            B33(0x15) = 3;
+            memcpy(g_Challenge, lbl_80354768 + B33_S8(0xF) * 0x4508, 0x4508);
             cardCheck[0x52] = 5;
-            idx++;
-            if (idx == 3) {
-                idx = 0;
+            if (++*(s32 *)(menuCursors + 0x50) == 3) {
+                *(s32 *)(menuCursors + 0x50) = 0;
             }
-            *(s32 *)(menuCursors + 0x50) = idx;
-            bss[0xD] = (u8)*(s32 *)(menuCursors + 0x50);
-            bss[0x17] = 0x4D;
-            *(s16 *)(bss + 2) = 3;
-            sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
-        } else if (state == 4) {
-            bss[0x15] = 4;
-            bss[0xF] = Static_Stats_Tables[0x4754];
-            *(s16 *)(bss + 2) = 4;
-            sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
-        } else if (state == 5) {
-            *(s16 *)(bss + 2) = 3;
-            sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
-        } else {
-            sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
+            B33(0xD) = *(s32 *)(menuCursors + 0x50);
+            B33(0x17) = 0x4D;
+            B33_U16(2) = 3;
+            break;
         }
-    } else if (buf[1] & 0x200) {
+        case 4:
+            B33(0xF) = Static_Stats_Tables[0x4754];
+            B33(0x15) = 4;
+            B33_U16(2) = 4;
+            break;
+        case 5:
+            B33_U16(2) = 3;
+            break;
+        }
+        sndFXStartEx(0x1B8, lbl_800EFBA4[1], 0x3F, 0);
+    } else if (buf[1] & PAD_BUTTON_B) {
         sndFXStartEx(0x1B9, lbl_800EFBA4[2], 0x3F, 0);
-        *(s16 *)(bss + 2) = 3;
-    } else if (buf[2] & 0x8) {
-        *(s32 *)(bss + 0x1C) = state;
+        B33_U16(2) = 3;
+    } else if (buf[2] & PAD_BUTTON_UP) {
+        *(s32 *)(lbl_2_bss_33FBCC + 0x1C) = state;
         do {
-            state--;
-            if (state < 0) {
+            if (--state < 0) {
                 state = 5;
             }
-        } while (bss[state + 7] == 0);
-        bss[0x22] = 0x53;
+        } while (B33(state + 7) == 0);
+        B33(0x22) = 0x53;
         sndFXStartEx(0x1B7, lbl_800EFBA4[0], 0x3F, 0);
-    } else if (buf[2] & 0x4) {
-        *(s32 *)(bss + 0x1C) = state;
+    } else if (buf[2] & PAD_BUTTON_DOWN) {
+        *(s32 *)(lbl_2_bss_33FBCC + 0x1C) = state;
         do {
-            state++;
-            if (state == 6) {
+            if (++state == 6) {
                 state = 0;
             }
-        } while (bss[state + 7] == 0);
-        bss[0x22] = 0x53;
+        } while (B33(state + 7) == 0);
+        B33(0x22) = 0x53;
         sndFXStartEx(0x1B7, lbl_800EFBA4[0], 0x3F, 0);
     }
     *(s32 *)(menuCursors + 0x54) = state;
@@ -851,10 +847,6 @@ void fn_2_52648(u32 priority) {
 void fn_2_5268C(void) {
     return;
 }
-
-#define B33(off) (lbl_2_bss_33FBCC[off])
-#define B33_S8(off) (((s8 *)lbl_2_bss_33FBCC)[off])
-#define B33_U16(off) (*(u16 *)(lbl_2_bss_33FBCC + (off)))
 
 static inline void fn_2_52690_startSave(s32 slot, s32 mode) {
     fn_8003BF54(0, 0, 0, 0, 1, 1, 2, slot, mode);
