@@ -7114,8 +7114,9 @@ void fn_2_2416C(void) {
     }
 #define UI_TIMER (*(s16 *)&lbl_2_bss_1A8234[0x160000 + 0x2600])
 #define CHALLENGE_REC(idx, off) CHALLENGE_BYTE((idx) * 10 + (off))
+#define CHALLENGE_REC2(idx, off) (((u8 (*)[10])lbl_2_bss_1A8248->_40EE)[idx][(off) - 0x40EE])
 #define PORTRAIT_OR_SCENE(captainOffset, flagOffset)                                               \
-    if (CHALLENGE_BYTE(flagOffset) == 1) {                                                         \
+    if ((s32)CHALLENGE_BYTE(flagOffset) == 1) {                                                       \
         changeScene(3, 6);                                                                         \
     } else {                                                                                       \
         challenge_setTransitionScreenCharacterPortrait(0xC, (s8)lbl_2_data_3CE0[CHALLENGE_BYTE(captainOffset)]); \
@@ -7243,6 +7244,8 @@ void fn_2_20D08(void) {
                 }
                 break;
             case 1:
+                SCENE_STATE = 0x12;
+                break;
             case 2:
                 SCENE_STATE = 0x12;
                 break;
@@ -7274,6 +7277,8 @@ void fn_2_20D08(void) {
                 fn_2_432EC();
                 break;
             case 7:
+                SCENE_STATE = 0x12;
+                break;
             case 8:
                 SCENE_STATE = 0x12;
                 break;
@@ -7321,7 +7326,7 @@ void fn_2_20D08(void) {
         int input;
         int sel;
         CHALLENGE_BYTE(0x44F3) = 0;
-        if (WORK_U8(0x789E) == 1) {
+        if ((s32)WORK_U8(0x789E) == 1) {
             fn_2_1C490();
             WORK_U8(0x789E) = 0;
             SCENE_STATE = 0x1E;
@@ -7336,7 +7341,7 @@ void fn_2_20D08(void) {
         if (input == -1) {
             WORK_U8(0x78FB) = 1;
         }
-        if (sel != -1 && (CHALLENGE_REC(sel, 0x40F2) == 7 || CHALLENGE_REC(sel, 0x40F2) == 8) &&
+        if (sel != -1 && (CHALLENGE_REC2(sel, 0x40F2) == 7 || CHALLENGE_REC2(sel, 0x40F2) == 8) &&
             CHALLENGE_BYTE(0x442A) == 1) {
             CHALLENGE_S16(0x16C0) = sel;
             fn_2_1C490();
@@ -7360,36 +7365,36 @@ void fn_2_20D08(void) {
             CHALLENGE_S8(0x4448) = -1;
         }
         if (PAD_NEW2() & INPUT_BUTTON_A) {
-            int recIdx = CHALLENGE_S16(0x16C2);
-            if (CHALLENGE_REC(recIdx, 0x40F1) == 0 && CHALLENGE_REC(recIdx, 0x40F2) == 0 &&
-                CHALLENGE_REC(recIdx, 0x40F3) != CHALLENGE_BYTE(0x441C) && fn_2_45938() == 1) {
+            ChallengeState *c = lbl_2_bss_1A8248;
+            u8 *rec = (u8 *)c + c->_16C2 * 10;
+            if (rec[0x40F1] == 0 && rec[0x40F2] == 0 &&
+                rec[0x40F3] != c->captain && fn_2_45938() == 1) {
                 CHALLENGE_BYTE(0x44EF) = 0;
                 CHALLENGE_BYTE(0x44F3) = 1;
                 SCENE_STATE = 0x17;
                 break;
             }
-            recIdx = CHALLENGE_S16(0x16C2);
-            if (CHALLENGE_REC(recIdx, 0x40F1) == 0 && CHALLENGE_REC(recIdx, 0x40F2) == 0 &&
-                CHALLENGE_REC(recIdx, 0x40F3) == CHALLENGE_BYTE(0x441C) && CHALLENGE_BYTE(0x441C) == 5 &&
+            if (CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F1) == 0 && CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F2) == 0 &&
+                CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F3) == CHALLENGE_BYTE(0x441C) && CHALLENGE_BYTE(0x441C) == 5 &&
                 CHALLENGE_BYTE(0x4422) >= 5) {
                 CHALLENGE_BYTE(0x44EF) = 1;
                 CHALLENGE_BYTE(0x44F3) = 1;
                 SCENE_STATE = 0x17;
                 break;
             }
-            if (CHALLENGE_REC(recIdx, 0x40F1) == 0 && CHALLENGE_REC(recIdx, 0x40F2) == 0 &&
-                CHALLENGE_REC(recIdx, 0x40F3) != CHALLENGE_BYTE(0x441C) && fn_2_45938() == 0) {
+            if (CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F1) == 0 && CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F2) == 0 &&
+                CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F3) != CHALLENGE_BYTE(0x441C) && fn_2_45938() == 0) {
                 sndFXStartEx(0x1BA, lbl_800EFBA4[3], 0x3F, 0);
                 break;
             }
-            if (CHALLENGE_REC(recIdx, 0x40F1) == 0 && CHALLENGE_REC(recIdx, 0x40F2) == 4 &&
-                CHALLENGE_REC(recIdx, 0x40F3) != CHALLENGE_BYTE(0x441C)) {
+            if (CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F1) == 0 && CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F2) == 4 &&
+                CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F3) != CHALLENGE_BYTE(0x441C)) {
                 CHALLENGE_BYTE(0x44EF) = 0;
                 CHALLENGE_BYTE(0x44F3) = 1;
                 SCENE_STATE = 0x2D;
                 break;
             }
-            if (CHALLENGE_REC(recIdx, 0x40F1) == 0 && CHALLENGE_REC(recIdx, 0x40F2) == 6) {
+            if (CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F1) == 0 && CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F2) == 6) {
                 SCENE_STATE = 0x60;
                 CHALLENGE_BYTE(0x44F3) = 1;
                 break;
@@ -7452,7 +7457,7 @@ void fn_2_20D08(void) {
         }
         if (fn_2_6AFD4(0) == 1) {
             fn_2_6AF80(0, 0);
-            if (CHALLENGE_REC(CHALLENGE_S16(0x16C2), 0x40F6) == 0) {
+            if (CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F6) == 0) {
                 fn_2_1C41C();
                 SCENE_STATE = 0x12;
                 goto state18;
@@ -7809,7 +7814,7 @@ void fn_2_20D08(void) {
                 CHALLENGE_BYTE(0x4504) = 2;
             }
             fn_2_45978();
-            if (CHALLENGE_REC(CHALLENGE_S16(0x16C2), 0x40F6) == 0) {
+            if (CHALLENGE_REC2(CHALLENGE_S16(0x16C2), 0x40F6) == 0) {
                 fn_2_1C41C();
                 SCENE_STATE = 0x12;
                 goto state18;
@@ -8627,7 +8632,7 @@ void fn_2_20218(void) {
 
 #pragma dont_inline on
 // .text:0x000201E4 size:0x34 mapped:0x8065F278
-s16 fn_2_201E4(s16 row, s16 col) {
+int fn_2_201E4(s16 row, s16 col) {
     if (col < 0) {
         return -1;
     }
