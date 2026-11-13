@@ -111,6 +111,31 @@ void fn_2_53F88(void *arg0);
 void fn_2_54120(void);
 void fn_2_53DF8(void *arg0);
 void fn_2_4E858(void *arg0);
+#define SCENE_MODE (*(s16 *)&lbl_2_bss_1A823C[0x30])
+extern u8 *lbl_2_bss_1A823C;
+extern u8 lbl_2_data_2EA4[];
+extern s16 lbl_2_data_3ED4[];
+extern s16 lbl_2_data_3EE0[];
+extern s16 lbl_2_data_3EEC[];
+extern s16 lbl_2_data_3EF0[];
+void fn_2_6ACF4(void);
+void fn_2_71F60(void);
+void fn_2_72054(s32 index, s32 state);
+int fn_2_4C3D8(s32 index);
+void fn_2_6ABFC(s32 idx, s32 which);
+void fn_2_6AABC(s32 idx, Vec *src);
+void fn_2_68DAC(s32 idx, Vec *dst);
+s16 fn_2_689CC(s32 idx);
+void fn_2_686D0(s32 idx, s32 val);
+void fn_2_904A8(void);
+void fn_2_9257C(void);
+void fn_2_90428(int idx);
+void fn_2_92654(s32 slot, s32 value);
+void fn_2_94854(int value);
+void menuCamera_setFollowSlot(int slot);
+void menuCamera_setEyeFollowsSlot(int follows);
+void menuCamera_setSpringPreset(s32 preset);
+void menuCamera_snapToPreset(void);
 
 // .text:0x000338D4 size:0x59C mapped:0x80672968
 void fn_2_338D4(void *arg0, void *arg1) {
@@ -6660,7 +6685,142 @@ s16 fn_2_24E9C(void) {
 
 // .text:0x00024800 size:0x69C mapped:0x80663894
 void fn_2_24800(void) {
-    return;
+    int i;
+    int j;
+    s16 mode;
+    s16 sel;
+    Vec pos;
+    fn_2_6ACF4();
+    insertGraphicDrawingFunction(fn_2_71F60, 2);
+    if (SCENE_MODE == 5) {
+        fn_2_72054(0, 8);
+    } else {
+        fn_2_72054(0, 4);
+    }
+    mode = SCENE_MODE;
+    if (mode == 0) {
+        fn_2_6ABFC(0, fn_2_4C3D8(lbl_2_bss_1A8248->captain));
+    } else if (mode != 4) {
+        if (lbl_2_bss_1A8248->captain == 3 && lbl_2_bss_1A8248->opponentCaptain == 1 &&
+            (sel = lbl_2_bss_1A8248->_16C2) == 0xB && mode == 3) {
+            memcpy(&pos, lbl_2_data_2EA4 + sel * 12, 12);
+            pos.x += 0.3f;
+            pos.z -= 0.3f;
+            fn_2_6AABC(0, &pos);
+        } else {
+            fn_2_6ABFC(0, lbl_2_bss_1A8248->_16C2);
+        }
+    }
+    if (SCENE_MODE == 4) {
+        fn_2_72054(1, 3);
+    } else if (SCENE_MODE == 8 || SCENE_MODE == 1) {
+        if (CHALLENGE_BYTE(0x442F) == 1) {
+            int v = fn_2_689CC(1);
+            CHALLENGE_S16(0x179A) = v;
+            CHALLENGE_S16(0x1798) = v;
+            CHALLENGE_S16(0x1796) = v;
+            fn_2_6ABFC(1, (s16)v);
+            fn_2_72054(1, 6);
+            CHALLENGE_BYTE(0x442F) = 1;
+        }
+    } else if (lbl_2_bss_1A8248->captain == 5) {
+        fn_2_72054(1, 0);
+    } else {
+        int pick;
+        s16 *table;
+        fn_2_68DAC(0, &pos);
+        pick = rand() % 2;
+        if (pos.x > 0.0f) {
+            table = lbl_2_data_3EEC;
+            fn_2_6ABFC(1, table[pick]);
+            CHALLENGE_S16(0x179A) = table[pick];
+        } else {
+            table = lbl_2_data_3EF0;
+            fn_2_6ABFC(1, table[pick]);
+            CHALLENGE_S16(0x179A) = table[pick];
+        }
+        fn_2_72054(1, 6);
+        CHALLENGE_BYTE(0x442F) = 1;
+    }
+    lbl_2_bss_1A824C[0x190000 + 0x782A] = 1;
+    lbl_2_bss_1A824C[0x190000 + 0x782B] = 1;
+    lbl_2_bss_1A824C[0x190000 + 0x7832] = 1;
+    for (i = 0; i < 5; i++) {
+        lbl_2_bss_1A824C[0x190000 + 0x782D + i] = 1;
+        if (SCENE_MODE == 0) {
+            fn_2_6ABFC(i + 2, lbl_2_data_3ED4[i]);
+            *(s16 *)((u8 *)lbl_2_bss_1A8248 + i * 0xD8 + 0x1872) = lbl_2_data_3ED4[i];
+        }
+        if (lbl_2_bss_1A824C[0x190000 + 0x782D + i] == 1) {
+            if (SCENE_MODE == 5 && lbl_2_bss_1A8248->_4420[0] == i) {
+                fn_2_72054(i + 2, 8);
+                if (lbl_2_bss_1A8248->_16C2 == lbl_2_data_3EE0[i]) {
+                    fn_2_6ABFC(i + 2, lbl_2_data_3ED4[i]);
+                }
+            } else {
+                fn_2_72054(i + 2, 7);
+                fn_2_686D0(i + 2, 0);
+            }
+        } else {
+            fn_2_72054(i + 2, 0);
+        }
+    }
+    for (i = 0; i < 6; i++) {
+        fn_2_6ABFC(i + 7, 0);
+    }
+    fn_2_904A8();
+    insertGraphicDrawingFunction(fn_2_9257C, 2);
+    fn_2_90428(0);
+    fn_2_92654(0, 1);
+    for (j = 0; j < 6; j++) {
+        fn_2_90428(j + 1);
+        if (CHALLENGE_BYTE(0x440C + j) == 1) {
+            fn_2_92654(j + 1, 2);
+        }
+    }
+    fn_2_90428(7);
+    if (CHALLENGE_BYTE(0x440E) == 1) {
+        fn_2_92654(7, 2);
+    }
+    if (CHALLENGE_BYTE(0x4439) == 1) {
+        fn_2_90428(8);
+        fn_2_92654(8, 2);
+    }
+    for (j = 0; j < 6; j++) {
+        fn_2_90428(j + 10);
+        fn_2_90428(j + 0x10);
+        if ((CHALLENGE_BYTE(fn_2_4C3D8(j) * 10 + 0x40F1) == 2 || CHALLENGE_BYTE(fn_2_4C3D8(j) * 10 + 0x40F1) == 3) &&
+            lbl_2_bss_1A8248->captain != j) {
+            fn_2_92654(j + 10, 2);
+        }
+    }
+    fn_2_90428(0x16);
+    fn_2_92654(0x16, 2);
+    fn_2_90428(0x17);
+    fn_2_92654(0x17, 1);
+    if (lbl_2_bss_1A8248->_4446[0] == 0 && lbl_2_bss_1A8248->captain != 5) {
+        fn_2_90428(0x18);
+        fn_2_92654(0x18, 2);
+    }
+    if (CHALLENGE_BYTE(0x442A) == 1) {
+        fn_2_90428(0x19);
+        fn_2_92654(0x19, 1);
+        fn_2_90428(0x1A);
+        fn_2_92654(0x1A, 1);
+        fn_2_90428(0x1B);
+        fn_2_92654(0x1B, 2);
+    }
+    fn_2_94854(0xB);
+    menuCamera_setFollowSlot(0);
+    menuCamera_setEyeFollowsSlot(1);
+    menuCamera_setSpringPreset(1);
+    menuCamera_snapToPreset();
+    CHALLENGE_BYTE(0x44F3) = 1;
+    switch (SCENE_MODE) {
+    case 0:
+        CHALLENGE_BYTE(0x441B) = 1;
+        break;
+    }
 }
 
 // .text:0x00024728 size:0xD8 mapped:0x806637BC
