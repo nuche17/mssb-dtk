@@ -1,6 +1,7 @@
 #include "menus/rep_0788.h"
 #include "header_rep_data.h"
 #include "game/challenge/challenge_state.h"
+#include "game/challenge/star_mission_data.h"
 #include "Unknown/File_0x800b0a14.h"
 #include "Unknown/File_0x800363d8.h"
 #include "text/text.h"
@@ -33,6 +34,7 @@ extern u8 *lbl_2_bss_1A8244;
 extern s16 lbl_2_data_3714[];
 extern u8 lbl_800E869C[0x20];
 extern s16 lbl_2_data_38C0[];
+extern u8 challengeCaptainCharIDs[];
 extern int determineIfMissionDescriptionIsShown(int charID);
 extern s32 challenge_isCharRecruited(u8 arg0);
 
@@ -1193,8 +1195,78 @@ void fn_2_26774(void *arg0, void *arg1) {
 }
 
 // .text:0x00026864 size:0x290 mapped:0x806658F8
-void fn_2_26864(void) {
-    return;
+void fn_2_26864(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 4:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+        setRecordFrame(arg0, arg1, 0);
+        *(s16 *)((u8 *)arg1 + 6) = 0xFA;
+        *state = 3;
+        break;
+    }
+    case 3: {
+        s16 *timer = (s16 *)((u8 *)arg1 + 6);
+        if ((*timer)-- <= 0) {
+            TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+            obj->flags |= UI_FLAG_VISIBLE;
+            obj = SCENE_RECORD(arg0, arg1);
+            ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+            *state = 0x25;
+        }
+        break;
+    }
+    case 0x25: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        if ((((UIRecord *)obj)->frame >> 16) >= 0x78) {
+            ((UIRecord *)obj)->frame = 0x320000;
+        }
+        break;
+    }
+    case 0x11: {
+        TextGraphicsObject *obj;
+        setRecordFrame(arg0, arg1, 0x780000);
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        *state = 0x12;
+        break;
+    }
+    case 0x12: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        if ((((UIRecord *)obj)->frame >> 16) >= 0x82) {
+            ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+            *state = 0x13;
+        }
+        break;
+    }
+    case 0x13: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        break;
+    }
+    case 5: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        break;
+    }
+    }
 }
 
 // .text:0x00026AF4 size:0x17C mapped:0x80665B88
@@ -1279,8 +1351,64 @@ void fn_2_26F80(void *arg0, void *arg1) {
 }
 
 // .text:0x000270B8 size:0x204 mapped:0x8066614C
-void fn_2_270B8(void) {
-    return;
+void fn_2_270B8(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 4:
+    case 8:
+    case 0x25:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        setRecordFrame(arg0, arg1, 0);
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        *state = 3;
+        break;
+    }
+    case 3: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        if ((((UIRecord *)obj)->frame >> 16) >= 0xDC) {
+            ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+            *state = 0x25;
+        }
+        break;
+    }
+    case 5: {
+        TextGraphicsObject *obj;
+        setRecordFrame(arg0, arg1, 0x14A0000);
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        if ((((UIRecord *)obj)->frame >> 16) >= 0x140) {
+            ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+            *state = 7;
+        }
+        break;
+    }
+    case 7: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        break;
+    }
+    }
 }
 
 // .text:0x000272BC size:0x2C mapped:0x80666350
@@ -2245,13 +2373,120 @@ void fn_2_2B250(void *arg0, void *arg1) {
 }
 
 // .text:0x0002B43C size:0x218 mapped:0x8066A4D0
-void fn_2_2B43C(void) {
-    return;
+void fn_2_2B43C(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+    case 7:
+    case 0x25:
+        break;
+    case 2:
+    case 8: {
+        TextGraphicsObject *obj;
+        s16 row = *(s16 *)((u8 *)arg1 + 0xA);
+        if (starMissionRequirementsTable[*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706]][row].type != STAR_MISSION_TYPE_NONE) {
+            if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7710] == row) {
+        setRecordFrame(arg0, arg1, 0);
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+            } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+            }
+        } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        *(s16 *)((u8 *)arg1 + 6) = 9;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        s16 *timer = (s16 *)((u8 *)arg1 + 6);
+        if ((*timer)-- <= 0) {
+            TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        break;
+    }
+    }
 }
 
 // .text:0x0002B654 size:0x230 mapped:0x8066A6E8
-void fn_2_2B654(void) {
-    return;
+void fn_2_2B654(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        s16 row = *(s16 *)((u8 *)arg1 + 0xA);
+        s16 charRow = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706];
+        if (starMissionRequirementsTable[charRow][row].type != STAR_MISSION_TYPE_NONE) {
+            if (lbl_2_bss_1A8248->characters[lbl_800E869C[charRow]].inGameMissionTracker[row].starMissionStatus < 0) {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+            } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+            }
+        } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        *(s16 *)((u8 *)arg1 + 6) = 9;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        s16 *timer = (s16 *)((u8 *)arg1 + 6);
+        if ((*timer)-- <= 0) {
+            TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        break;
+    }
+    case 0x25:
+        break;
+    }
 }
 
 // .text:0x0002B884 size:0x2B0 mapped:0x8066A918
@@ -2260,8 +2495,64 @@ void fn_2_2B884(void) {
 }
 
 // .text:0x0002BB34 size:0x270 mapped:0x8066ABC8
-void fn_2_2BB34(void) {
-    return;
+void fn_2_2BB34(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+    case 0x25:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        s16 row = *(s16 *)((u8 *)arg1 + 0xA);
+        s16 charRow = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706];
+        if (starMissionRequirementsTable[charRow][row].type != STAR_MISSION_TYPE_NONE) {
+            if (lbl_2_bss_1A8248->characters[lbl_800E869C[charRow]].inGameMissionTracker[row].starMissionStatus < 0) {
+            load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x5A, 1);
+            } else {
+            load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x5A, 0);
+            }
+        } else {
+            load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x5A, 0);
+        }
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_BACKWARD;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        if ((((UIRecord *)obj)->frame >> 16) == 0) {
+            ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+            *state = 7;
+        }
+        break;
+    }
+    case 7: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        break;
+    }
+    }
 }
 
 // .text:0x0002BDA4 size:0x17C mapped:0x8066AE38
@@ -2308,8 +2599,72 @@ void fn_2_2BDA4(void *arg0, void *arg1) {
 }
 
 // .text:0x0002BF20 size:0x288 mapped:0x8066AFB4
-void fn_2_2BF20(void) {
-    return;
+void fn_2_2BF20(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+    case 7:
+    case 0x25:
+        break;
+    case 2:
+    case 8: {
+        TextGraphicsObject *obj;
+        s16 row = *(s16 *)((u8 *)arg1 + 0xA);
+        s16 charRow = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706];
+        if (starMissionRequirementsTable[charRow][row].type != STAR_MISSION_TYPE_NONE) {
+            ChallengeTrackingStruct *tracker = &lbl_2_bss_1A8248->characters[lbl_800E869C[charRow]];
+            s16 a = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7710];
+            s16 b;
+            s8 statusA = tracker->inGameMissionTracker[a].starMissionStatus;
+            if (!(statusA < 0 && tracker->inGameMissionTracker[b = *(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7712]].starMissionStatus < 0 && a != b)) {
+                if (statusA < 0) {
+        setRecordFrame(arg0, arg1, 0);
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+                } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+                }
+            }
+        } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+        }
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        *(s16 *)((u8 *)arg1 + 6) = 9;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        s16 *timer = (s16 *)((u8 *)arg1 + 6);
+        if ((*timer)-- <= 0) {
+            TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        break;
+    }
+    }
 }
 
 // .text:0x0002C1A8 size:0x1D0 mapped:0x8066B23C
@@ -2453,8 +2808,53 @@ void fn_2_2C4E4(void *arg0, void *arg1) {
 }
 
 // .text:0x0002C698 size:0x1C8 mapped:0x8066B72C
-void fn_2_2C698(void) {
-    return;
+void fn_2_2C698(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        if (lbl_2_bss_1A8248->_43C2[*(s16 *)((u8 *)arg1 + 0xA)] == 1) {
+            load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 0x6C, *(s16 *)((u8 *)arg1 + 0xA));
+        setRecordPlayMode(arg0, arg1, UI_PLAY_FORWARD);
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        *(s16 *)((u8 *)arg1 + 6) = 0x1E;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        s16 *timer = (s16 *)((u8 *)arg1 + 6);
+        if ((*timer)-- <= 0) {
+            TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        break;
+    }
+    case 0x25:
+        break;
+    }
 }
 
 // .text:0x0002C860 size:0x1D0 mapped:0x8066B8F4
@@ -2559,8 +2959,53 @@ void fn_2_2CA30(void *arg0, void *arg1) {
 }
 
 // .text:0x0002CBCC size:0x1D8 mapped:0x8066BC60
-void fn_2_2CBCC(void) {
-    return;
+void fn_2_2CBCC(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        if (lbl_2_bss_1A8248->_43C2[*(s16 *)((u8 *)arg1 + 0xA)] == 1) {
+            ((UIRecord *)SCENE_RECORD(arg0, arg1))->elementIndex = 0x68;
+        } else {
+            ((UIRecord *)SCENE_RECORD(arg0, arg1))->elementIndex = 0x67;
+        }
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        *(s16 *)((u8 *)arg1 + 6) = 0x1E;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        s16 *timer = (s16 *)((u8 *)arg1 + 6);
+        if ((*timer)-- <= 0) {
+            TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        break;
+    }
+    case 0x25:
+        break;
+    }
 }
 
 // .text:0x0002CDA4 size:0x1B4 mapped:0x8066BE38
@@ -2704,18 +3149,180 @@ void fn_2_2D508(void *arg0, void *arg1) {
 }
 
 // .text:0x0002D640 size:0x284 mapped:0x8066C6D4
-void fn_2_2D640(void) {
-    return;
+void fn_2_2D640(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706] == *(s16 *)((u8 *)arg1 + 0x10)) {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+        }
+        *state = 0x25;
+        break;
+    }
+    case 0x25: {
+        TextGraphicsObject *obj;
+        if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7706] == *(s16 *)((u8 *)arg1 + 0x10)) {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+        }
+        break;
+    }
+    case 5: {
+        *(s16 *)((u8 *)arg1 + 6) = 0x28;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        s16 *timer = (s16 *)((u8 *)arg1 + 6);
+        if ((*timer)-- <= 0) {
+            TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        break;
+    }
+    }
 }
 
 // .text:0x0002D8C4 size:0x1E4 mapped:0x8066C958
-void fn_2_2D8C4(void) {
-    return;
+void fn_2_2D8C4(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        u8 charID = lbl_800E869C[*(s16 *)((u8 *)arg1 + 0x10)];
+        int flag = lbl_2_bss_1A8248->charIsSuperstar[charID];
+        if (challenge_isCharRecruited(charID)) {
+            if (flag == 1) {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+            } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+            }
+        } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        }
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        *(s16 *)((u8 *)arg1 + 6) = 0x28;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        s16 *timer = (s16 *)((u8 *)arg1 + 6);
+        if ((*timer)-- <= 0) {
+            TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        break;
+    }
+    case 0x25:
+        break;
+    }
 }
 
 // .text:0x0002DAA8 size:0x200 mapped:0x8066CB3C
-void fn_2_2DAA8(void) {
-    return;
+void fn_2_2DAA8(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        u8 charID = lbl_800E869C[*(s16 *)((u8 *)arg1 + 0x10)];
+        int flag = lbl_2_bss_1A8248->charIsSuperstar[charID];
+        if (challenge_isCharRecruited(charID)) {
+            if (flag == 1) {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+            } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+            }
+        } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        *(s16 *)((u8 *)arg1 + 6) = 0x28;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        s16 *timer = (s16 *)((u8 *)arg1 + 6);
+        if ((*timer)-- <= 0) {
+            TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        break;
+    }
+    case 0x25:
+        break;
+    }
 }
 
 // .text:0x0002DCA8 size:0x1D0 mapped:0x8066CD3C
@@ -2984,8 +3591,56 @@ void fn_2_2E44C(void *arg0, void *arg1) {
 }
 
 // .text:0x0002E5C8 size:0x208 mapped:0x8066D65C
-void fn_2_2E5C8(void) {
-    return;
+void fn_2_2E5C8(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+        break;
+    case 2: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        *state = 3;
+        break;
+    }
+    case 3: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        if ((((UIRecord *)obj)->frame >> 16) >= 0xC8) {
+            if (lbl_2_bss_1A8248->_4446[0] != 0) {
+                lbl_2_bss_1A8234[0x160000 + 0x267A] = 1;
+            }
+            *state = 4;
+        }
+    }
+    case 4: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        if ((((UIRecord *)obj)->frame >> 16) >= 0x104) {
+            ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+            obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+            *state = 0x25;
+        }
+        break;
+    }
+    case 5: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        break;
+    }
+    case 0x25:
+        break;
+    }
 }
 
 // .text:0x0002E7D0 size:0x414 mapped:0x8066D864
@@ -3004,8 +3659,56 @@ void fn_2_2EFCC(void) {
 }
 
 // .text:0x0002F544 size:0x1CC mapped:0x8066E5D8
-void fn_2_2F544(void) {
-    return;
+void fn_2_2F544(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        s16 list[9];
+        s16 *out = list;
+        s16 i;
+        ChallengeState *challenge = lbl_2_bss_1A8248;
+        for (i = 0; i < 9; i++) {
+            if (challenge->savedLineup[i].charID != challengeCaptainCharIDs[challenge->captain]) {
+                *out++ = challenge->savedLineup[i].charID;
+            }
+        }
+        setRecordFrame(arg0, arg1, (u32)list[*(s16 *)((u8 *)arg1 + 0xA)] << 16);
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        *(s16 *)((u8 *)arg1 + 6) = 0x19;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        s16 *timer = (s16 *)((u8 *)arg1 + 6);
+        if ((*timer)-- <= 0) {
+            TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        break;
+    }
+    case 0x25:
+        break;
+    }
 }
 
 // .text:0x0002F710 size:0x194 mapped:0x8066E7A4
@@ -3062,8 +3765,54 @@ void fn_2_2F710(void *arg0, void *arg1) {
 }
 
 // .text:0x0002F8A4 size:0x1D8 mapped:0x8066E938
-void fn_2_2F8A4(void) {
-    return;
+void fn_2_2F8A4(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+    case 0x25:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        load_Icon(arg0, *(s16 *)((u8 *)arg1 + 0xE), 1, 6, lbl_2_bss_1A8248->difficulty);
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_BACKWARD;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        if ((((UIRecord *)obj)->frame >> 16) == 0) {
+            ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+            *state = 7;
+        }
+        break;
+    }
+    case 7: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        break;
+    }
+    }
 }
 
 // .text:0x0002FA7C size:0x150 mapped:0x8066EB10
@@ -3206,8 +3955,70 @@ void fn_2_2FD00(void *arg0, void *arg1) {
 }
 
 // .text:0x0002FE50 size:0x26C mapped:0x8066EEE4
-void fn_2_2FE50(void) {
-    return;
+void fn_2_2FE50(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 3:
+    case 4:
+    case 0x25:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        setRecordFrame(arg0, arg1, 0);
+        if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7728] == *(s16 *)((u8 *)arg1 + 0xA)) {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        *state = 0x25;
+        break;
+    }
+    case 0x11: {
+        TextGraphicsObject *obj;
+        setRecordFrame(arg0, arg1, 0);
+        if (*(s16 *)&lbl_2_bss_1A824C[0x190000 + 0x7728] == *(s16 *)((u8 *)arg1 + 0xA)) {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_FORWARD;
+        } else {
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->playMode = UI_PLAY_STOP;
+        }
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        *(s16 *)((u8 *)arg1 + 6) = 0xE;
+        *state = 6;
+        break;
+    }
+    case 6: {
+        s16 *timer = (s16 *)((u8 *)arg1 + 6);
+        if ((*timer)-- <= 0) {
+            TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+            obj->flags &= ~UI_FLAG_VISIBLE;
+        }
+        break;
+    }
+    }
 }
 
 // .text:0x000300BC size:0x2E0 mapped:0x8066F150
@@ -3901,8 +4712,53 @@ void fn_2_31F50(void *arg0, void *arg1) {
 }
 
 // .text:0x000320D8 size:0x20C mapped:0x8067116C
-void fn_2_320D8(void) {
-    return;
+void fn_2_320D8(void *arg0, void *arg1) {
+    s16 *state = (s16 *)((u8 *)arg1 + 4);
+    s16 result = fn_2_53BC8(arg1);
+    if (result != -1) {
+        *state = result;
+    }
+    switch (*state) {
+    case 0: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *(s16 *)((u8 *)arg1 + 0x12) = 0xFF;
+        *(s16 *)((u8 *)arg1 + 0x14) = text_initializeNewChannel((UnkText988Arg *)arg0, *(s16 *)((u8 *)arg1 + 0xE), (u16)*(s16 *)((u8 *)arg1 + 0x10), 4, lbl_2_bss_1A8248->captain + 0x30C, 0);
+        *state = 0x26;
+        break;
+    }
+    case 1:
+    case 4:
+        break;
+    case 2: {
+        TextGraphicsObject *obj;
+        text_setPtrToWhereCharsAreStored(*(s16 *)((u8 *)arg1 + 0x14), 4, lbl_2_bss_1A8248->captain + 0x30C);
+        obj = SCENE_RECORD(arg0, arg1);
+        obj->flags |= UI_FLAG_VISIBLE;
+        screenTextArray.blocks[*(s16 *)((u8 *)arg1 + 0x14)].justify = 1;
+        *state = 3;
+        break;
+    }
+    case 3: {
+        *state = 0x25;
+        break;
+    }
+    case 0x25: {
+        *state = 0x25;
+        break;
+    }
+    case 5: {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        obj->flags &= ~UI_FLAG_VISIBLE;
+        *state = 0x26;
+        break;
+    }
+    }
+    screenTextArray.blocks[*(s16 *)((u8 *)arg1 + 0x14)].justify = 1;
+    {
+        TextGraphicsObject *obj = SCENE_RECORD(arg0, arg1);
+        ((UIRecord *)obj)->rgba = *(s16 *)((u8 *)arg1 + 0x12) | (((UIRecord *)obj)->rgba & 0xFFFFFF00);
+    }
 }
 
 // .text:0x000322E4 size:0x150 mapped:0x80671378
