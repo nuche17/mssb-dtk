@@ -733,26 +733,21 @@ void fn_2_520A4(void) {
 }
 
 void fn_2_52198(void) {
-    u16 m = *(u16 *)(menuControlVariables + 6);
-    s32 r7;
-    u8 old8;
-    u16 nv;
+    s32 screen;
 
-    if (m == 5 || m == 0x10) {
+    if (*(u16 *)(menuControlVariables + 6) == 5 || *(u16 *)(menuControlVariables + 6) == 0x10) {
         insertGraphicDrawingFunction(fn_80053FE8, 0);
         insertGraphicDrawingFunction(fn_2_82DE8, 0x3000);
     }
     if (Static_Stats_Tables[0x4756] == 0) {
-        r7 = 0xB;
+        screen = 0xB;
     } else {
         menuNumber[3] = Static_Stats_Tables[0x4711];
-        r7 = 0x10;
+        screen = 0x10;
     }
-    old8 = menuNumber[8];
-    nv = *(u16 *)(lbl_800FEF70 + r7 * 16 + 8);
-    menuNumber[0] = (u8)r7;
-    menuNumber[9] = old8;
-    menuNumber[8] = (u8)nv;
+    menuNumber[0] = screen;
+    menuNumber[9] = menuNumber[8];
+    menuNumber[8] = *(u16 *)(lbl_800FEF70 + screen * 16 + 8);
     insertGraphicDrawingFunction(fn_2_8ABFC, 0x3000);
 }
 
@@ -875,20 +870,7 @@ void fn_2_52690(void) {
         lbl_2_bss_9E08 = 1;
         break;
     case 1:
-        if (*(u16 *)(menuControlVariables + 6) == 5 || *(u16 *)(menuControlVariables + 6) == 0x10) {
-            insertGraphicDrawingFunction(fn_80053FE8, 0);
-            insertGraphicDrawingFunction(fn_2_82DE8, 0x3000);
-        }
-        if (Static_Stats_Tables[0x4756] == 0) {
-            c = 0xB;
-        } else {
-            menuNumber[3] = Static_Stats_Tables[0x4711];
-            c = 0x10;
-        }
-        menuNumber[0] = c;
-        menuNumber[9] = menuNumber[8];
-        menuNumber[8] = *(u16 *)(lbl_800FEF70 + c * 16 + 8);
-        insertGraphicDrawingFunction(fn_2_8ABFC, 0x3000);
+        fn_2_52198();
         g_MatchInfo[0x36] = 1;
         g_MatchInfo[0x37] = g_MatchInfo[0x38];
         g_MatchInfo[0x38] = 0;
